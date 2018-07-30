@@ -103,23 +103,6 @@ ttp://10.110.13.165:19888/jmx,http://10.110.13.165:8088/jmx,http://10.110.13.164
   -P port, --port port  Listen to this port. (default "9130")
 ```
 
-Help on flags of resourcemanager_exporter:
-```
-usage: resourcemanager_exporter.py [-h] [-url url]
-                                   [--telemetry-path telemetry_path] [-p port]
-                                   --cluster cluster
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -url url, --resourcemanager.url url
-                        Hadoop ResourceManager URL. (default
-                        "http://localhost:8088")
-  --telemetry-path telemetry_path
-                        Path under which to expose metrics. (default
-                        "/metrics")
-  -p port, --port port  Listen to this port. (default ":9088")
-  --cluster cluster     label for cluster
-```
 
 Tested on Apache Hadoop 2.7.3
 # hadoop_exporter
