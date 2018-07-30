@@ -2,14 +2,14 @@
     "NumActiveSources": "Current number of active metrics sources.",
     "NumAllSources": "Total number of metrics sources.",
     "NumActiveSinks": "Current number of active sinks.",
-    "NumAllSinks": "Total number of sinks  (BUT usually less than NumActiveSinks, see HADOOP-9946).",
+    "NumAllSinks": "Total number of sinks (BUT usually less than NumActiveSinks, see HADOOP-9946).",
     "SnapshotNumOps": "Total number of operations to snapshot statistics from a metrics source.",
     "SnapshotAvgTime": "Average time in milliseconds to snapshot statistics from a metrics source.",
     "PublishNumOps": "Total number of operations to publish statistics to a sink.",
     "PublishAvgTime": "Average time in milliseconds to publish statistics to a sink.",
     "DroppedPubAll": "Total number of dropped publishes.",
-    "Sink_instanceNumOps": "Total number of sink operations for the instance.",
-    "Sink_instanceAvgTime": "Average time in milliseconds of sink operations for the instance.",
-    "Sink_instanceDropped": "Total number of dropped sink operations for the instance.",
-    "Sink_instanceQsize": "Current queue length of sink operations  (BUT always set to 0 because nothing to increment this metrics, see HADOOP-9941)."
+    "Sink_instanceNumOps": "Total number of sink operations for the instance.",
+    "Sink_instanceAvgTime": "Average time in milliseconds of sink operations for the instance.",
+    "Sink_instanceDropped": "Total number of dropped sink operations for the instance.",
+    "Sink_instanceQsize": "Current queue length of sink operations (BUT always set to 0 because nothing to increment this metrics, see HADOOP-9941)."
 }

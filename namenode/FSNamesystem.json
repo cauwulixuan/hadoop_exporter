@@ -26,7 +26,7 @@
     "ScheduledReplicationBlocks": "Current number of blocks scheduled for replications",
     "PendingDeletionBlocks": "Current number of blocks pending deletion",
     "ExcessBlocks": "Current number of excess blocks",
-    "NumTimedOutPendingReplications": "The number of timed out replications. Not the number of unique blocks that timed out. Note: The metric name will be changed to NumTimedOutPendingReconstructions in Hadoop 3 release.",
+    "NumTimedOutPendingReplications": "The number of timed out replications. Not the number of unique blocks that timed out. Note: The metric name will be changed to NumTimedOutPendingReconstructions in Hadoop 3 release.",
     "PostponedMisreplicatedBlocks": "(HA-only) Current number of blocks postponed to replicate",
     "PendingDataNodeMessageCount": "(HA-only) Current number of pending block-related messages for later processing in the standby NameNode",
     "MillisSinceLastLoadedEdits": "(HA-only) Time in milliseconds since the last time standby NameNode load edit log. In active NameNode, set to 0",
