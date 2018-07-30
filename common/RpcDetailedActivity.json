@@ -1,0 +1,4 @@
+{
+    "methodNumOps": "Total number of the times the method is called",
+    "methodAvgTime": "Average turn around time of the method in milliseconds"
+}

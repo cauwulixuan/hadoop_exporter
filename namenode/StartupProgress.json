@@ -1,0 +1,20 @@
+{
+    "ElapsedTime": "Total elapsed time in milliseconds.",
+    "PercentComplete": "Current rate completed in NameNode startup progress  (The max value is not 100 but 1.0).",
+    "LoadingFsImageCount": "",
+    "LoadingFsImageElapsedTime": "",
+    "LoadingFsImageTotal": "",
+    "LoadingFsImagePercentComplete": "",
+    "LoadingEditsCount": "",
+    "LoadingEditsElapsedTime": "",
+    "LoadingEditsTotal": "",
+    "LoadingEditsPercentComplete": "",
+    "SavingCheckpointCount": "",
+    "SavingCheckpointElapsedTime": "",
+    "SavingCheckpointTotal": "",
+    "SavingCheckpointPercentComplete": "",
+    "SafeModeCount": "",
+    "SafeModeElapsedTime": "",
+    "SafeModeTotal": "",
+    "SafeModePercentComplete": ""
+}

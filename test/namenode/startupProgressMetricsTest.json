@@ -1,0 +1,23 @@
+{
+    "name": "Hadoop:service=NameNode,name=StartupProgress",
+    "modelerType": "StartupProgress",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "ElapsedTime": 61882,
+    "PercentComplete": 1,
+    "LoadingFsImageCount": 0,
+    "LoadingFsImageElapsedTime": 617,
+    "LoadingFsImageTotal": 0,
+    "LoadingFsImagePercentComplete": 1,
+    "LoadingEditsCount": 2386,
+    "LoadingEditsElapsedTime": 103,
+    "LoadingEditsTotal": 2386,
+    "LoadingEditsPercentComplete": 1,
+    "SavingCheckpointCount": 0,
+    "SavingCheckpointElapsedTime": 0,
+    "SavingCheckpointTotal": 0,
+    "SavingCheckpointPercentComplete": 1,
+    "SafeModeCount": 4703,
+    "SafeModeElapsedTime": 58113,
+    "SafeModeTotal": 4702,
+    "SafeModePercentComplete": 1
+}

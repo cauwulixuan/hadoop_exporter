@@ -1,0 +1,11 @@
+nodemanagerMetrics = {
+    "containersLaunched": "Total number of launched containers.",
+    "containersCompleted": "Total number of successfully completed containers.",
+    "containersFailed": "Total number of failed containers.",
+    "containersKilled": "Total number of killed containers.",
+    "containersIniting": "Current number of initializing containers.",
+    "containersRunning": "Current number of running containers.",
+    "allocatedContainers": "Current number of allocated containers.",
+    "allocatedGB": "Current allocated memory in GB.",
+    "availableGB": "Current available memory in GB."
+}

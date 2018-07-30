@@ -1,0 +1,16 @@
+{
+    "name": "Hadoop:service=ResourceManager,name=ClusterMetrics",
+    "modelerType": "ClusterMetrics",
+    "tag.ClusterMetrics": "ResourceManager",
+    "tag.Context": "yarn",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "NumActiveNMs": 3,
+    "NumDecommissionedNMs": 0,
+    "NumLostNMs": 0,
+    "NumUnhealthyNMs": 0,
+    "NumRebootedNMs": 0,
+    "AMLaunchDelayNumOps": 65,
+    "AMLaunchDelayAvgTime": 15,
+    "AMRegisterDelayNumOps": 67,
+    "AMRegisterDelayAvgTime": 5817
+}

@@ -1,0 +1,10 @@
+{
+    "LoginSuccessNumOps": "Total number of successful kerberos logins.",
+    "LoginSuccessAvgTime": "Average time for successful kerberos logins in milliseconds.",
+    "LoginFailureNumOps": "Total number of failed kerberos logins.",
+    "LoginFailureAvgTime": "Average time for failed kerberos logins in milliseconds.",
+    "GetGroupsNumOps": "Total number of group resolutions.",
+    "GetGroupsAvgTime": "Average time for group resolution in milliseconds.",
+    "RenewalFailuresTotal": "Total number of renewal failures.",
+    "RenewalFailures": "Current number of renewal failures."
+}

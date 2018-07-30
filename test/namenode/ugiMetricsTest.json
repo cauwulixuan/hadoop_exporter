@@ -1,0 +1,14 @@
+{
+    "name": "Hadoop:service=NameNode,name=UgiMetrics",
+    "modelerType": "UgiMetrics",
+    "tag.Context": "ugi",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "LoginSuccessNumOps": 25,
+    "LoginSuccessAvgTime": 4,
+    "LoginFailureNumOps": 0,
+    "LoginFailureAvgTime": 0,
+    "GetGroupsNumOps": 46079,
+    "GetGroupsAvgTime": 1,
+    "RenewalFailuresTotal": 0,
+    "RenewalFailures": 0
+}

@@ -1,0 +1,12 @@
+{
+    "NumLiveDataNodes": "Number of datanodes which are currently live",
+    "NumDeadDataNodes": "Number of datanodes which are currently dead",
+    "NumDecomLiveDataNodes": "Number of datanodes which have been decommissioned and are now live",
+    "NumDecomDeadDataNodes": "Number of datanodes which have been decommissioned and are now dead",
+    "NumDecommissioningDataNodes": "Number of datanodes in decommissioning state",
+    "VolumeFailuresTotal": "Total number of volume failures across all Datanodes",
+    "EstimatedCapacityLostTotal": "An estimate of the total capacity lost due to volume failures",
+    "NumStaleStorages": "Number of storages marked as content stale (after NameNode restart/failover before first block report is received)",
+    "FSState": "Current state of the file system: 0 (for Safemode) or 1(Operational)",
+    "TotalSyncTimes": "Total number of milliseconds spent by various edit logs in sync operation"
+}

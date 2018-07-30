@@ -1,0 +1,19 @@
+{
+    "name": "Hadoop:service=NameNode,name=MetricsSystem,sub=Stats",
+    "modelerType": "MetricsSystem,sub=Stats",
+    "tag.Context": "metricssystem",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "NumActiveSources": 12,
+    "NumAllSources": 12,
+    "NumActiveSinks": 1,
+    "NumAllSinks": 0,
+    "Sink_timelineNumOps": 174284,
+    "Sink_timelineAvgTime": 3,
+    "Sink_timelineDropped": 141,
+    "Sink_timelineQsize": 0,
+    "SnapshotNumOps": 2267525,
+    "SnapshotAvgTime": 0,
+    "PublishNumOps": 174425,
+    "PublishAvgTime": 0,
+    "DroppedPubAll": 141
+}

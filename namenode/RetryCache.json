@@ -1,0 +1,5 @@
+{
+    "CacheHit": "Total number of RetryCache hit.",
+    "CacheCleared": "Total number of RetryCache cleared.",
+    "CacheUpdated": "Total number of RetryCache updated."
+}

@@ -1,0 +1,22 @@
+{
+    "name": "Hadoop:service=NameNode,name=RpcActivityForPort8020",
+    "modelerType": "RpcActivityForPort8020",
+    "tag.port": "8020",
+    "tag.Context": "rpc",
+    "tag.NumOpenConnectionsPerUser": "{\"hdfs\":1}",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "ReceivedBytes": 2305317681,
+    "SentBytes": 2964927515,
+    "RpcQueueTimeNumOps": 7316132,
+    "RpcQueueTimeAvgTime": 1,
+    "RpcProcessingTimeNumOps": 7316132,
+    "RpcProcessingTimeAvgTime": 0,
+    "RpcAuthenticationFailures": 179,
+    "RpcAuthenticationSuccesses": 663900,
+    "RpcAuthorizationFailures": 0,
+    "RpcAuthorizationSuccesses": 663900,
+    "RpcClientBackoff": 0,
+    "RpcSlowCalls": 0,
+    "NumOpenConnections": 1,
+    "CallQueueLength": 0
+}

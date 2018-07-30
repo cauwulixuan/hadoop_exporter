@@ -1,0 +1,9 @@
+{
+    "name": "Hadoop:service=NameNode,name=RetryCache.NameNodeRetryCache",
+    "modelerType": "RetryCache.NameNodeRetryCache",
+    "tag.Context": "rpc",
+    "tag.Hostname": "indata-10-110-13-42.indata.com",
+    "CacheHit": 16,
+    "CacheCleared": 0,
+    "CacheUpdated": 397386
+}

@@ -1,0 +1,16 @@
+{
+    "ReceivedBytes": "Total number of received bytes",
+    "SentBytes": "Total number of sent bytes",
+    "RpcQueueTimeNumOps": "Total number of RPC calls",
+    "RpcQueueTimeAvgTime": "Average queue time in milliseconds",
+    "RpcProcessingTimeNumOps": "Total number of RPC calls (same to RpcQueueTimeNumOps)",
+    "RpcProcessingAvgTime": "Average Processing time in milliseconds",
+    "RpcAuthenticationFailures": "Total number of authentication failures",
+    "RpcAuthenticationSuccesses": "Total number of authentication successes",
+    "RpcAuthorizationFailures": "Total number of authorization failures",
+    "RpcAuthorizationSuccesses": "Total number of authorization successes",
+    "RpcClientBackoff": "Total number of RPC client back off",
+    "RpcSlowCalls": "Total number of RPC slow calls",
+    "NumOpenConnections": "Current number of open connections",
+    "CallQueueLength": "Current length of the call queue"
+}

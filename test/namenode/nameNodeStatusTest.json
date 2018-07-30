@@ -1,0 +1,12 @@
+{
+    "name": "Hadoop:service=NameNode,name=NameNodeStatus",
+    "modelerType": "org.apache.hadoop.hdfs.server.namenode.NameNode",
+    "NNRole": "NameNode",
+    "HostAndPort": "indata-10-110-13-42.indata.com:8020",
+    "SecurityEnabled": true,
+    "LastHATransitionTime": 1530072006768,
+    "BytesWithFutureGenerationStamps": 0,
+    "SlowPeersReport": null,
+    "SlowDisksReport": null,
+    "State": "standby"
+}
