@@ -1,6 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
+import yaml
 import re
 import time
 import requests
@@ -31,8 +32,8 @@ class MetricCol(object):
         @param cluster: Cluster name, registered in the config file or ran in the command-line.
         @param url: All metrics are scraped in the url, corresponding to each component. 
                     e.g. "hdfs" metrics can be scraped in http://ip:50070/jmx.
-                         "yarn" metrics can be scraped in http://ip:8088/jmx.
-        @param component: Component name. e.g. "hdfs", "yarn", "mapreduce", "hive", "hbase".
+                         "resourcemanager" metrics can be scraped in http://ip:8088/jmx.
+        @param component: Component name. e.g. "hdfs", "resourcemanager", "mapreduce", "hive", "hbase".
         @param service: Service name. e.g. "namenode", "resourcemanager", "mapreduce".
         '''
         self._cluster = cluster
@@ -62,7 +63,7 @@ class MetricCol(object):
     def _get_metrics(self, metrics):
         pass
 
-"""
+
 def common_metrics_info(cluster, beans, service):
 
     tmp_metrics = {}
@@ -316,17 +317,18 @@ def common_metrics_info(cluster, beans, service):
             if 'RpcDetailedActivity' in beans[i]['name']:
                 detail_tag = beans[i]['tag.port']
                 for metric in beans[i]:
-                    label = [_cluster, detail_tag]
-                    if "NumOps" in metric:
-                        key = "NumOps"
-                        label.append(metric.split('NumOps')[0])
-                    elif "AvgTime" in metric:
-                        key = "AvgTime"
-                        label.append(metric.split("AvgTime")[0])
-                    else:
-                        pass
-                    common_metrics['RpcDetailedActivity'][key].add_metric(label,
-                                                                          beans[i][metric])
+                    if metric[0].isupper():
+                        label = [_cluster, detail_tag]
+                        if "NumOps" in metric:
+                            key = "NumOps"
+                            label.append(metric.split('NumOps')[0])
+                        elif "AvgTime" in metric:
+                            key = "AvgTime"
+                            label.append(metric.split("AvgTime")[0])
+                        else:
+                            pass
+                        common_metrics['RpcDetailedActivity'][key].add_metric(label,
+                                                                              beans[i][metric])
 
             if 'UgiMetrics' in beans[i]['name']:
                 for metric in tmp_metrics['UgiMetrics']:
@@ -369,334 +371,7 @@ def common_metrics_info(cluster, beans, service):
         return common_metrics
 
     return get_metrics
-"""
 
-"""
-
-class CommonMetricCollector(object):
-    '''
-    All other collector contains these metrics collected in the CommonMetricCollector,
-    including JvmMetrics, MetricSystem, RpcActivity, RpcDetailedActivity, UgiMetrics
-    '''
-    def __init__(self, cluster, beans, service):
-        '''
-        @param cluster: cluster name, registered in the config file or ran in the command-line.
-        @param url: All metrics are scraped in the url, corresponding to each component. 
-                    e.g. "hdfs" metrics can be scraped in http://ip:50070/jmx.
-                         "yarn" metrics can be scraped in http://ip:8088/jmx.
-        @param component: Component name. e.g. "hdfs", "yarn", "mapreduce", "hive", "hbase".
-        @param service: Service name. e.g. "namenode", "resourcemanager", "mapreduce".
-        '''
-        self.tmp_metrics = {}
-        self.common_metrics = {}
-        self._cluster = cluster
-        self._beans = beans
-        self._prefix = 'hadoop_{0}_'.format(service)
-        self._metrics_type = utils.get_file_list("common")
-    
-        for i in range(len(self._metrics_type)):
-            self.common_metrics.setdefault(self._metrics_type[i], {})
-            self.tmp_metrics.setdefault(self._metrics_type[i], utils.read_json_file("common", self._metrics_type[i]))
-
-        self.setup_labels()
-        self.get_metrics()
-
-    def setup_labels(self):
-        '''
-        预处理，分析各个模块的特点，进行分类，添加label
-        '''
-        if 'JvmMetrics' in self.tmp_metrics:
-            for metric in self.tmp_metrics["JvmMetrics"]:
-                '''
-                处理JvmMetrics模块
-                '''
-                snake_case = "jvm_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                if 'Mem' in metric:
-                    name = snake_case + 'ebibytes'
-                    label = ["cluster", "mode"]
-                    if "Used" in metric:
-                        key = "jvm_mem_used_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    elif "Committed" in metric:
-                        key = "jvm_mem_committed_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    elif "Max" in metric:
-                        key = "jvm_mem_max_size_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    else:
-                        key = name
-                        descriptions = self.tmp_metrics['JvmMetrics'][metric]
-                elif 'Gc' in metric:
-                    label = ["cluster", "type"]
-                    if "GcCount" in metric:
-                        key = "jvm_gc_count"
-                        descriptions = "GC count of each type GC."
-                    elif "GcTimeMillis" in metric:
-                        key = "jvm_gc_time_milliseconds"
-                        descriptions = "Each type GC time in msec."
-                    elif "ThresholdExceeded" in metric:
-                        key = "jvm_gc_exceeded_threshold_total"
-                        descriptions = "Number of times that the GC threshold is exceeded."
-                    else:
-                        key = snake_case
-                        label = ["cluster"]
-                        descriptions = self.tmp_metrics['JvmMetrics'][metric]
-                elif 'Threads' in metric:
-                    label = ["cluster", "state"]
-                    key = "jvm_threads_state_total"
-                    descriptions = "Current number of different threads."
-                elif 'Log' in metric:
-                    label = ["cluster", "level"]
-                    key = "jvm_log_level_total"
-                    descriptions = "Total number of each level logs."
-                else:
-                    label = ["cluster"]
-                    key = snake_case
-                    descriptions = self.tmp_metrics['JvmMetrics'][metric]
-                self.common_metrics['JvmMetrics'][key] = GaugeMetricFamily(self._prefix + key,
-                                                                           descriptions,
-                                                                           labels=label)
-
-        if 'RpcActivity' in self.tmp_metrics:
-            num_rpc_flag, avg_rpc_flag = 1, 1
-            for metric in self.tmp_metrics["RpcActivity"]:
-                '''
-                处理RpcActivity, 一个url里可能有多个RpcActivity模块，可以根据tag.port进行区分
-                '''
-                snake_case = "rpc_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                label = ["cluster", "tag"]
-                if "NumOps" in metric:
-                    if num_rpc_flag:
-                        key = "MethodNumOps"
-                        label.append("method")
-                        self.common_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + "rpc_method_called_total",
-                                                                                    "Total number of the times the method is called.",
-                                                                                    labels = label)
-                        num_rpc_flag = 0
-                    else:
-                        continue
-                elif "AvgTime" in metric:
-                    if avg_rpc_flag:
-                        key = "MethodAvgTime"
-                        label.append("method")
-                        self.common_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + "rpc_method_avg_time_milliseconds",
-                                                                                    "Average turn around time of the method in milliseconds.",
-                                                                                    labels = label)
-                        avg_rpc_flag = 0
-                    else:
-                        continue
-                else:
-                    key = metric
-                    self.common_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + snake_case,
-                                                                                self.tmp_metrics['RpcActivity'][metric],
-                                                                                labels = label)
-        
-        if 'RpcDetailedActivity' in self.tmp_metrics:
-            for metric in self.tmp_metrics['RpcDetailedActivity']:
-                label = ["cluster", "tag"]
-                if "NumOps" in metric:
-                    key = "NumOps"
-                    label.append("method")
-                    name = self._prefix + 'rpc_detailed_method_called_total'
-                elif "AvgTime" in metric:
-                    key = "AvgTime"
-                    label.append("method")
-                    name = self._prefix  + 'rpc_detailed_method_avg_time_milliseconds'
-                else:
-                    pass
-                self.common_metrics['RpcDetailedActivity'][key] = GaugeMetricFamily(name,
-                                                                                    self.tmp_metrics['RpcDetailedActivity'][metric],
-                                                                                    labels = label)
-
-        if 'UgiMetrics' in self.tmp_metrics:
-            ugi_num_flag, ugi_avg_flag = 1, 1
-            for metric in self.tmp_metrics['UgiMetrics']:
-                label = ["cluster"]
-                if 'NumOps' in metric:
-                    if ugi_num_flag:
-                        key = 'NumOps'
-                        label + ["method","state"] if 'Login' in metric else label.append("method")
-                        ugi_num_flag = 0
-                        self.common_metrics['UgiMetrics'][key] = GaugeMetricFamily(self._prefix + 'ugi_method_called_total',
-                                                                                   "Total number of the times the method is called.",
-                                                                                   labels = label)
-                    else:
-                        continue
-                elif 'AvgTime' in metric:
-                    if ugi_avg_flag:
-                        key = 'AvgTime'
-                        label + ["method", "state"] if 'Login' in metric else label.append("method")
-                        ugi_avg_flag = 0
-                        self.common_metrics['UgiMetrics'][key] = GaugeMetricFamily(self._prefix + 'ugi_method_avg_time_milliseconds',
-                                                                                   "Average turn around time of the method in milliseconds.",
-                                                                                   labels = label)
-                    else:
-                        continue
-                else:
-                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                    self.common_metrics['UgiMetrics'][metric] = GaugeMetricFamily(self._prefix  + 'ugi_' + snake_case,
-                                                                                  self.tmp_metrics['UgiMetrics'][metric],
-                                                                                  labels = label)
-
-        if 'MetricsSystem' in self.tmp_metrics:
-            metric_num_flag, metric_avg_flag = 1, 1
-            for metric in self.tmp_metrics['MetricsSystem']:
-                label = ["cluster"]
-                if 'NumOps' in metric:
-                    if metric_num_flag:
-                        key = 'NumOps'
-                        label.append("oper")
-                        metric_num_flag = 0
-                        self.common_metrics['MetricsSystem'][key] = GaugeMetricFamily(self._prefix + 'metrics_operations_total',
-                                                                                      "Total number of operations",
-                                                                                      labels = label)
-                    else:
-                        continue
-                elif 'AvgTime' in metric:
-                    if metric_avg_flag:
-                        key = 'AvgTime'
-                        label.append("oper")
-                        metric_avg_flag = 0
-                        self.common_metrics['MetricsSystem'][key] = GaugeMetricFamily(self._prefix + 'metrics_method_avg_time_milliseconds',
-                                                                                      "Average turn around time of the operations in milliseconds.",
-                                                                                      labels = label)
-                    else:
-                        continue
-                else:
-                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                    self.common_metrics['MetricsSystem'][metric] = GaugeMetricFamily(self._prefix  + 'metrics_' + snake_case,
-                                                                                     self.tmp_metrics['MetricsSystem'][metric],
-                                                                                     labels = label)
-
-
-    def get_metrics(self):
-        '''
-        给setup_labels模块的输出结果进行赋值，从url中获取对应的数据，挨个赋值
-        '''
-        for i in range(len(self._beans)):
-            if 'JvmMetrics' in self._beans[i]['name']:
-                # 记录JvmMetrics在bean中的位置
-                for metric in self.tmp_metrics['JvmMetrics']:
-                    label = [self._cluster]
-                    name = "jvm_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-
-                    if 'Mem' in metric:
-                        if "NonHeap" in metric:
-                            label.append("nonheap")
-                        elif "MemHeap" in metric:
-                            label.append("heap")
-                        elif "Max" in metric:
-                            label.append("max")
-                        else:
-                            pass
-                        if "Used" in metric:
-                            key = "jvm_mem_used_mebibytes"
-                        elif "Committed" in metric:
-                            key = "jvm_mem_committed_mebibytes"
-                        elif "Max" in metric:
-                            key = "jvm_mem_max_size_mebibytes"
-                        else:
-                            key = name + 'ebibytes'
-                        
-                    elif 'Gc' in metric:
-                        if "GcCount" in metric:
-                            key = "jvm_gc_count"
-                        elif "GcTimeMillis" in metric:
-                            key = "jvm_gc_time_milliseconds"
-                        elif "ThresholdExceeded" in metric:
-                            key = "jvm_gc_exceeded_threshold_total"
-                        else:
-                            key = name
-                        if "ParNew" in metric:
-                            label.append("ParNew")
-                        elif "ConcurrentMarkSweep" in metric:
-                            label.append("ConcurrentMarkSweep")
-                        elif "Warn" in metric:
-                            label.append("Warn")
-                        elif "Info" in metric:
-                            label.append("Info")
-                        else:
-                            pass
-                    elif 'Threads' in metric:
-                        key = "jvm_threads_state_total"
-                        label.append(metric.split("Threads")[1])
-                    elif 'Log' in metric:
-                        key = "jvm_log_level_total"
-                        label.append(metric.split("Log")[1])
-                    else:
-                        key = name
-                    self.common_metrics['JvmMetrics'][key].add_metric(label,
-                                                                      self._beans[i][metric] if metric in self._beans[i] else 0)
-
-            if 'RpcActivity' in self._beans[i]['name']:
-                rpc_tag = self._beans[i]['tag.port']
-                for metric in self.tmp_metrics['RpcActivity']:
-                    label = [self._cluster, rpc_tag]
-                    if "NumOps" in metric:
-                        label.append(metric.split('NumOps')[0])
-                        key = "MethodNumOps"
-                    elif "AvgTime" in metric:
-                        label.append(metric.split('AvgTime')[0])
-                        key = "MethodAvgTime"
-                    else:
-                        label.append(metric)
-                        key = metric
-                    self.common_metrics['RpcActivity'][key].add_metric(label,
-                                                                       self._beans[i][metric] if metric in self._beans[i] else 0)
-            if 'RpcDetailedActivity' in self._beans[i]['name']:
-                detail_tag = self._beans[i]['tag.port']
-                for metric in self._beans[i]:
-                    label = [self._cluster, detail_tag]
-                    if "NumOps" in metric:
-                        key = "NumOps"
-                        label.append(metric.split('NumOps')[0])
-                    elif "AvgTime" in metric:
-                        key = "AvgTime"
-                        label.append(metric.split("AvgTime")[0])
-                    else:
-                        pass
-                    self.common_metrics['RpcDetailedActivity'][key].add_metric(label,
-                                                                               self._beans[i][metric])
-
-            if 'UgiMetrics' in self._beans[i]['name']:
-                for metric in self.tmp_metrics['UgiMetrics']:
-                    label = [self._cluster]
-                    if 'NumOps' in metric:
-                        key = 'NumOps'
-                        if 'Login' in metric:
-                            method = 'Login'
-                            state = metric.split('Login')[1].split('NumOps')[0]
-                            self.common_metrics['UgiMetrics'][key].add_metric(label + [method, state], self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                        else:
-                            label.append(metric.split('NumOps')[0])
-                            self.common_metrics['UgiMetrics'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                    elif 'AvgTime' in metric:
-                        key = 'AvgTime'
-                        if 'Login' in metric:
-                            method = 'Login'
-                            state = metric.split('Login')[1].split('AvgTime')[0]
-                            self.common_metrics['UgiMetrics'][key].add_metric(label + [method, state], self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                        else:
-                            label.append(metric.split('AvgTime')[0])
-                            self.common_metrics['UgiMetrics'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                    else:
-                        self.common_metrics['UgiMetrics'][metric].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-
-            if 'MetricsSystem' in self._beans[i]['name'] and "sub=Stats" in self._beans[i]['name']:
-                for metric in self.tmp_metrics['MetricsSystem']:
-                    label = [self._cluster]
-                    if 'NumOps' in metric:
-                        key = 'NumOps'
-                        label.append(metric.split('NumOps')[0])
-                        self.common_metrics['MetricsSystem'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                    elif 'AvgTime' in metric:
-                        key = 'AvgTime'
-                        label.append(metric.split('AvgTime')[0])
-                        self.common_metrics['MetricsSystem'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                    else:
-                        self.common_metrics['MetricsSystem'][metric].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-
-"""
 
 class NameNodeMetricsCollector(MetricCol):
 
@@ -712,30 +387,16 @@ class NameNodeMetricsCollector(MetricCol):
         else:
             self._beans = []
 
-        self._namenode_metrics = {}
-        self._common_metrics = {}
+        self._metrics = {}
         self._hadoop_namenode_metrics = {}
-
-        for i in range(len(self._common_file)):
-            self._common_metrics.setdefault(self._common_file[i], utils.read_json_file("common", self._common_file[i])) 
-
         for i in range(len(self._file_list)):
-            self._namenode_metrics.setdefault(self._file_list[i], utils.read_json_file("namenode", self._file_list[i]))
-        
-        self._metrics = self._common_metrics.copy()
-        self._metrics.update(self._namenode_metrics)
-
-        for i in range(len(self._merge_list)):
-            self._hadoop_namenode_metrics.setdefault(self._merge_list[i], {})
-
-        pprint(self._metrics)
-        pprint(self._hadoop_namenode_metrics)
+            self._metrics.setdefault(self._file_list[i], utils.read_json_file("namenode", self._file_list[i]))
+            self._hadoop_namenode_metrics.setdefault(self._file_list[i], {})
 
     def collect(self):
         # Request data from ambari Collect Host API
         # Request exactly the System level information we need from node
         # beans returns a type of 'List'
-
 
         # set up all metrics with labels and descriptions.
         self._setup_metrics_labels()
@@ -743,30 +404,14 @@ class NameNodeMetricsCollector(MetricCol):
         # add metric value to every metric.
         self._get_metrics(self._beans)
 
-        # # update namenode metrics with common metrics
-        # common = CommonMetricCollector(self._cluster, self._beans, "namenode")
-        # pprint(common.common_metrics)
-        # self._hadoop_namenode_metrics.update(common.common_metrics)
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "namenode")
+        self._hadoop_namenode_metrics.update(common_metrics())
 
-        # pprint(self._hadoop_namenode_metrics)
-        # print "=================================="
-
-        # # yield all metrics
-        # pprint(self._merge_list)
-        # self._merge_list = self._file_list
-        for i in range(len(self._common_file)):
-            service = self._common_file[i]
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
             for metric in self._hadoop_namenode_metrics[service]:
                 yield self._hadoop_namenode_metrics[service][metric]
-        # for i in range(len(self._file_list)):
-        #     service = self._file_list[i]
-        #     for metric in self._hadoop_namenode_metrics[service]:
-        #         yield self._hadoop_namenode_metrics[service][metric]
-
-        # for i in range(len(self._merge_list)):
-        #     service = self._merge_list[i]
-        #     for metric in self._hadoop_namenode_metrics[service]:
-        #         yield self._hadoop_namenode_metrics[service][metric]
 
 
     def _setup_metrics_labels(self):
@@ -934,173 +579,6 @@ class NameNodeMetricsCollector(MetricCol):
                 else:
                     continue
 
-        if 'JvmMetrics' in self._metrics:
-            for metric in self._metrics["JvmMetrics"]:
-                '''
-                处理JvmMetrics模块
-                '''
-                snake_case = "jvm_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                if 'Mem' in metric:
-                    name = snake_case + 'ebibytes'
-                    label = ["cluster", "mode"]
-                    if "Used" in metric:
-                        key = "jvm_mem_used_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    elif "Committed" in metric:
-                        key = "jvm_mem_committed_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    elif "Max" in metric:
-                        key = "jvm_mem_max_size_mebibytes"
-                        descriptions = "Current memory used in mebibytes."
-                    else:
-                        key = name
-                        descriptions = self._metrics['JvmMetrics'][metric]
-                elif 'Gc' in metric:
-                    label = ["cluster", "type"]
-                    if "GcCount" in metric:
-                        key = "jvm_gc_count"
-                        descriptions = "GC count of each type GC."
-                    elif "GcTimeMillis" in metric:
-                        key = "jvm_gc_time_milliseconds"
-                        descriptions = "Each type GC time in msec."
-                    elif "ThresholdExceeded" in metric:
-                        key = "jvm_gc_exceeded_threshold_total"
-                        descriptions = "Number of times that the GC threshold is exceeded."
-                    else:
-                        key = snake_case
-                        label = ["cluster"]
-                        descriptions = self._metrics['JvmMetrics'][metric]
-                elif 'Threads' in metric:
-                    label = ["cluster", "state"]
-                    key = "jvm_threads_state_total"
-                    descriptions = "Current number of different threads."
-                elif 'Log' in metric:
-                    label = ["cluster", "level"]
-                    key = "jvm_log_level_total"
-                    descriptions = "Total number of each level logs."
-                else:
-                    label = ["cluster"]
-                    key = snake_case
-                    descriptions = self._metrics['JvmMetrics'][metric]
-                self._hadoop_namenode_metrics['JvmMetrics'][key] = GaugeMetricFamily(self._prefix + key,
-                                                                                     descriptions,
-                                                                                     labels=label)
-
-        if 'RpcActivity' in self._metrics:
-            num_rpc_flag, avg_rpc_flag = 1, 1
-            for metric in self._metrics["RpcActivity"]:
-                '''
-                处理RpcActivity, 一个url里可能有多个RpcActivity模块，可以根据tag.port进行区分
-                '''
-                snake_case = "rpc_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                label = ["cluster", "tag"]
-                if "NumOps" in metric:
-                    if num_rpc_flag:
-                        key = "MethodNumOps"
-                        label.append("method")
-                        self._hadoop_namenode_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + "rpc_method_called_total",
-                                                                                              "Total number of the times the method is called.",
-                                                                                              labels = label)
-                        num_rpc_flag = 0
-                    else:
-                        continue
-                elif "AvgTime" in metric:
-                    if avg_rpc_flag:
-                        key = "MethodAvgTime"
-                        label.append("method")
-                        self._hadoop_namenode_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + "rpc_method_avg_time_milliseconds",
-                                                                                              "Average turn around time of the method in milliseconds.",
-                                                                                              labels = label)
-                        avg_rpc_flag = 0
-                    else:
-                        continue
-                else:
-                    key = metric
-                    self._hadoop_namenode_metrics['RpcActivity'][key] = GaugeMetricFamily(self._prefix + snake_case,
-                                                                                          self._metrics['RpcActivity'][metric],
-                                                                                          labels = label)
-        
-        if 'RpcDetailedActivity' in self._metrics:
-            for metric in self._metrics['RpcDetailedActivity']:
-                snake_case = "rpc_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                label = ["cluster", "tag"]
-                if "NumOps" in metric:
-                    key = "NumOps"
-                    label.append("method")
-                    name = self._prefix + 'rpc_detailed_method_called_total'
-                elif "AvgTime" in metric:
-                    key = "AvgTime"
-                    label.append("method")
-                    name = self._prefix  + 'rpc_detailed_method_avg_time_milliseconds'
-                else:
-                    key = metric
-                    name = self._prefix + snake_case
-                self._hadoop_namenode_metrics['RpcDetailedActivity'][key] = GaugeMetricFamily(name,
-                                                                                              self._metrics['RpcDetailedActivity'][metric],
-                                                                                              labels = label)
-
-        if 'UgiMetrics' in self._metrics:
-            ugi_num_flag, ugi_avg_flag = 1, 1
-            for metric in self._metrics['UgiMetrics']:
-                label = ["cluster"]
-                if 'NumOps' in metric:
-                    if ugi_num_flag:
-                        key = 'NumOps'
-                        label + ["method","state"] if 'Login' in metric else label.append("method")
-                        ugi_num_flag = 0
-                        self._hadoop_namenode_metrics['UgiMetrics'][key] = GaugeMetricFamily(self._prefix + 'ugi_method_called_total',
-                                                                                   "Total number of the times the method is called.",
-                                                                                   labels = label)
-                    else:
-                        continue
-                elif 'AvgTime' in metric:
-                    if ugi_avg_flag:
-                        key = 'AvgTime'
-                        label + ["method", "state"] if 'Login' in metric else label.append("method")
-                        ugi_avg_flag = 0
-                        self._hadoop_namenode_metrics['UgiMetrics'][key] = GaugeMetricFamily(self._prefix + 'ugi_method_avg_time_milliseconds',
-                                                                                   "Average turn around time of the method in milliseconds.",
-                                                                                   labels = label)
-                    else:
-                        continue
-                else:
-                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                    self._hadoop_namenode_metrics['UgiMetrics'][metric] = GaugeMetricFamily(self._prefix  + 'ugi_' + snake_case,
-                                                                                  self._metrics['UgiMetrics'][metric],
-                                                                                  labels = label)
-
-        if 'MetricsSystem' in self._metrics:
-            metric_num_flag, metric_avg_flag = 1, 1
-            for metric in self._metrics['MetricsSystem']:
-                label = ["cluster"]
-                if 'NumOps' in metric:
-                    if metric_num_flag:
-                        key = 'NumOps'
-                        label.append("oper")
-                        metric_num_flag = 0
-                        self._hadoop_namenode_metrics['MetricsSystem'][key] = GaugeMetricFamily(self._prefix + 'metrics_operations_total',
-                                                                                      "Total number of operations",
-                                                                                      labels = label)
-                    else:
-                        continue
-                elif 'AvgTime' in metric:
-                    if metric_avg_flag:
-                        key = 'AvgTime'
-                        label.append("oper")
-                        metric_avg_flag = 0
-                        self._hadoop_namenode_metrics['MetricsSystem'][key] = GaugeMetricFamily(self._prefix + 'metrics_method_avg_time_milliseconds',
-                                                                                      "Average turn around time of the operations in milliseconds.",
-                                                                                      labels = label)
-                    else:
-                        continue
-                else:
-                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-                    self._hadoop_namenode_metrics['MetricsSystem'][metric] = GaugeMetricFamily(self._prefix  + 'metrics_' + snake_case,
-                                                                                     self._metrics['MetricsSystem'][metric],
-                                                                                     labels = label)
-
-
-
     def _get_metrics(self, beans):
         # bean is a type of <Dict>
         # status is a type of <Str>
@@ -1200,139 +678,206 @@ class NameNodeMetricsCollector(MetricCol):
                     for metric in self._metrics['RetryCache']:
                         key = "cache"
                         label = [self._cluster, metric.split('Cache')[1]]
-                        self._hadoop_namenode_metrics['RetryCache'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)           
+                        self._hadoop_namenode_metrics['RetryCache'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
 
 
-            if 'JvmMetrics' in self._beans[i]['name']:
-                # 记录JvmMetrics在bean中的位置
-                if 'JvmMetrics' in self._metrics:
-                    for metric in self._metrics['JvmMetrics']:
+class ResourceManagerMetricsCollector(MetricCol):
+
+    NODE_STATE = {
+        'NEW': 1, 
+        'RUNNING': 2, 
+        'UNHEALTHY': 3, 
+        'DECOMMISSIONED': 4, 
+        'LOST': 5, 
+        'REBOOTED': 6,
+    }
+    
+    def __init__(self, cluster):
+        MetricCol.__init__(self, cluster, Config().YARN_ACTIVE_URL, "YARN", "resourcemanager")
+        # self._url = "{0}?qry=Hadoop:service=NameNode,name=*".format(self._base_url)
+        self._file_list = utils.get_file_list("resourcemanager")
+        self._common_file = utils.get_file_list("common")
+        self._merge_list = self._file_list + self._common_file
+        self._metrics_value = utils.get_metrics(self._url)
+        if self._metrics_value and 'beans' in self._metrics_value:
+            self._beans = self._metrics_value['beans']
+        else:
+            self._beans = []
+
+        self._metrics = {}
+        self._hadoop_resourcemanager_metrics = {}
+        for i in range(len(self._file_list)):
+            self._metrics.setdefault(self._file_list[i], utils.read_json_file("resourcemanager", self._file_list[i]))
+            self._hadoop_resourcemanager_metrics.setdefault(self._file_list[i], {})
+
+    def collect(self):
+        # Request data from ambari Collect Host API
+        # Request exactly the System level information we need from node
+        # beans returns a type of 'List'
+
+        # set up all metrics with labels and descriptions.
+        self._setup_metrics_labels()
+
+        # add metric value to every metric.
+        self._get_metrics(self._beans)
+
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "resourcemanager")
+        self._hadoop_resourcemanager_metrics.update(common_metrics())
+
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
+            for metric in self._hadoop_resourcemanager_metrics[service]:
+                yield self._hadoop_resourcemanager_metrics[service][metric]
+
+    def _setup_metrics_labels(self):
+        # The metrics we want to export.
+
+        if 'RMNMInfo' in self._metrics:
+            for metric in self._metrics['RMNMInfo']:
+                label = ["cluster", "host", "version", "rack"]
+                if 'NumContainers' in metric:
+                    name = self._prefix + 'node_containers_total'
+                elif 'State' in metric:
+                    name = self._prefix + 'node_state'
+                elif 'UsedMemoryMB' in metric:
+                    name = self._prefix + 'node_memory_used'
+                elif 'AvailableMemoryMB' in metric:
+                    name = self._prefix + 'node_memory_available'
+                # elif 'UsedVirtualCores' in metric:
+                #     name = self._prefix + 'node_virtual_cores_used'
+                # elif 'AvailableVirtualCores' in metric:
+                #     name = self._prefix + 'node_virtual_cores_available'
+                else:
+                    pass
+                self._hadoop_resourcemanager_metrics['RMNMInfo'][metric] = GaugeMetricFamily(name,
+                                                                                             self._metrics['RMNMInfo'][metric],
+                                                                                             labels=label)
+
+        if 'QueueMetrics' in self._metrics:
+            running_flag = 1
+            for metric in self._metrics['QueueMetrics']:
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                label = ["cluster"]
+                if "running_" in metric:
+                    if running_flag:
+                        running_flag = 0
+                        label.append("elapsed_time")
+                        key = "running_app"
+                        name = "running_app_total"
+                        descriptions = "Current number of running applications in each elapsed time ( < 60min, 60min < x < 300min, 300min < x < 1440min and x > 1440min )"
+                        self._hadoop_resourcemanager_metrics['QueueMetrics'][key] = GaugeMetricFamily(self._prefix + name,
+                                                                                                      descriptions,
+                                                                                                      labels=label)
+                    else:
+                        continue
+                else:
+                    self._hadoop_resourcemanager_metrics['QueueMetrics'][metric] = GaugeMetricFamily(self._prefix + snake_case,
+                                                                                                     self._metrics['QueueMetrics'][metric],
+                                                                                                     labels=label)
+
+
+        if 'ClusterMetrics' in self._metrics:
+            nm_flag, cm_num_flag, cm_avg_flag = 1,1,1
+            for metric in self._metrics['ClusterMetrics']:
+                label = ["cluster"]
+                if "NMs" in metric:
+                    if nm_flag:
+                        nm_flag = 0
+                        label.append("status")
+                        key = "NMs"
+                        name = "nodemanager_total"
+                        descriptions = "Current number of NodeManagers in each status"
+                    else:
+                        continue
+                elif "NumOps" in metric:
+                    if cm_num_flag:
+                        cm_num_flag = 0
+                        label.append("oper")
+                        key = "NumOps"
+                        name = "ams_total"
+                        descriptions = "Total number of Applications Masters in each operation"
+                    else:
+                        continue
+                elif "AvgTime" in metric:
+                    if cm_avg_flag:
+                        cm_avg_flag = 0
+                        label.append("oper")
+                        key = "AvgTime"
+                        name = "average_time_milliseconds"
+                        descriptions = "Average time in milliseconds AM spends in each operation"
+                    else:
+                        continue
+                else:
+                    continue
+                self._hadoop_resourcemanager_metrics['ClusterMetrics'][key] = GaugeMetricFamily(self._prefix + name,
+                                                                                                 descriptions,
+                                                                                                 labels=label)
+
+                
+
+    def _get_metrics(self, beans):
+        # bean is a type of <Dict>
+        # status is a type of <Str>
+
+        for i in range(len(beans)):
+
+            if 'RMNMInfo' in beans[i]['name']:
+                if 'RMNMInfo' in self._metrics:
+                    for metric in self._metrics['RMNMInfo']:
+                        live_nm_list = yaml.safe_load(beans[i]['LiveNodeManagers'])
+                        for j in range(len(live_nm_list)):
+                            host = live_nm_list[j]['HostName']
+                            version = live_nm_list[j]['NodeManagerVersion']
+                            rack = live_nm_list[j]['Rack']
+                            label = [self._cluster, host, version, rack]
+                            if 'State' == metric:
+                                value = self.NODE_STATE[live_nm_list[j]['State']]
+                            else:
+                                value = live_nm_list[j][metric]
+                            self._hadoop_resourcemanager_metrics['RMNMInfo'][metric].add_metric(label, value)
+
+            if 'QueueMetrics' in beans[i]['name'] and 'root' == beans[i]['tag.Queue']:
+                if 'QueueMetrics' in self._metrics:
+                    for metric in self._metrics['QueueMetrics']:
                         label = [self._cluster]
-                        name = "jvm_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
-
-                        if 'Mem' in metric:
-                            if "NonHeap" in metric:
-                                label.append("nonheap")
-                            elif "MemHeap" in metric:
-                                label.append("heap")
-                            elif "Max" in metric:
-                                label.append("max")
-                            else:
-                                pass
-                            if "Used" in metric:
-                                key = "jvm_mem_used_mebibytes"
-                            elif "Committed" in metric:
-                                key = "jvm_mem_committed_mebibytes"
-                            elif "Max" in metric:
-                                key = "jvm_mem_max_size_mebibytes"
-                            else:
-                                key = name + 'ebibytes'
-
-                        elif 'Gc' in metric:
-                            if "GcCount" in metric:
-                                key = "jvm_gc_count"
-                            elif "GcTimeMillis" in metric:
-                                key = "jvm_gc_time_milliseconds"
-                            elif "ThresholdExceeded" in metric:
-                                key = "jvm_gc_exceeded_threshold_total"
-                            else:
-                                key = name
-                            if "ParNew" in metric:
-                                label.append("ParNew")
-                            elif "ConcurrentMarkSweep" in metric:
-                                label.append("ConcurrentMarkSweep")
-                            elif "Warn" in metric:
-                                label.append("Warn")
-                            elif "Info" in metric:
-                                label.append("Info")
-                            else:
-                                pass
-                        elif 'Threads' in metric:
-                            key = "jvm_threads_state_total"
-                            label.append(metric.split("Threads")[1])
-                        elif 'Log' in metric:
-                            key = "jvm_log_level_total"
-                            label.append(metric.split("Log")[1])
+                        snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                        if "running_0" in metric:
+                            key = "running_app"
+                            label.append("0to60")
+                        elif "running_60" in metric:
+                            key = "running_app"
+                            label.append("60to300")
+                        elif "running_300" in metric:
+                            key = "running_app"
+                            label.append("300to1440")
+                        elif "running_1440" in metric:
+                            key = "running_app"
+                            label.append("1440up")
                         else:
-                            key = name
-                        self._hadoop_namenode_metrics['JvmMetrics'][key].add_metric(label,
-                                                                          self._beans[i][metric] if metric in self._beans[i] else 0)
-
-            if 'RpcActivity' in self._beans[i]['name']:
-                if 'RpcActivity' in self._metrics:
-                    rpc_tag = self._beans[i]['tag.port']
-                    for metric in self._metrics['RpcActivity']:
-                        label = [self._cluster, rpc_tag]
-                        if "NumOps" in metric:
-                            label.append(metric.split('NumOps')[0])
-                            key = "MethodNumOps"
-                        elif "AvgTime" in metric:
-                            label.append(metric.split('AvgTime')[0])
-                            key = "MethodAvgTime"
-                        else:
-                            label.append(metric)
                             key = metric
-                        self._hadoop_namenode_metrics['RpcActivity'][key].add_metric(label,
-                                                                           self._beans[i][metric] if metric in self._beans[i] else 0)
-            if 'RpcDetailedActivity' in self._beans[i]['name']:
-                if 'RpcDetailedActivity' in self._metrics:
-                    detail_tag = self._beans[i]['tag.port']
-                    # tag.port = '8020'
-                    for metric in self._beans[i]:
-                        if metric[0].isupper():
-                            label = [self._cluster, detail_tag]
-                            if "NumOps" in metric:
-                                key = "NumOps"
-                                label.append(metric.split('NumOps')[0])
-                            elif "AvgTime" in metric:
-                                key = "AvgTime"
-                                label.append(metric.split("AvgTime")[0])
-                            else:
-                                pass                                
-                            self._hadoop_namenode_metrics['RpcDetailedActivity'][key].add_metric(label,
-                                                                                       self._beans[i][metric])
-                        else:
-                            pass
+                        self._hadoop_resourcemanager_metrics['QueueMetrics'][key].add_metric(label,
+                                                                                             beans[i][metric] if metric in beans[i] else 0)
 
-            if 'UgiMetrics' in self._beans[i]['name']:
-                if 'UgiMetrics' in self._metrics:
-                    for metric in self._metrics['UgiMetrics']:
+            if 'ClusterMetrics' in beans[i]['name']:
+                if 'ClusterMetrics' in self._metrics:
+                    for metric in self._metrics['ClusterMetrics']:
                         label = [self._cluster]
-                        if 'NumOps' in metric:
-                            key = 'NumOps'
-                            if 'Login' in metric:
-                                method = 'Login'
-                                state = metric.split('Login')[1].split('NumOps')[0]
-                                self._hadoop_namenode_metrics['UgiMetrics'][key].add_metric(label + [method, state], self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                            else:
-                                label.append(metric.split('NumOps')[0])
-                                self._hadoop_namenode_metrics['UgiMetrics'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                        elif 'AvgTime' in metric:
-                            key = 'AvgTime'
-                            if 'Login' in metric:
-                                method = 'Login'
-                                state = metric.split('Login')[1].split('AvgTime')[0]
-                                self._hadoop_namenode_metrics['UgiMetrics'][key].add_metric(label + [method, state], self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                            else:
-                                label.append(metric.split('AvgTime')[0])
-                                self._hadoop_namenode_metrics['UgiMetrics'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
+                        if "NMs" in metric:
+                            label.append(metric.split('NMs')[0].split('Num')[1])
+                            key = "NMs"
+                            # self._hadoop_resourcemanager_metrics['ClusterMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
+                        elif "NumOps" in metric:
+                            key = "NumOps"
+                            label.append(metric.split("DelayNumOps")[0].split('AM')[1])
+                            # self._hadoop_resourcemanager_metrics['ClusterMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
+                        elif "AvgTime" in metric:
+                            key = "AvgTime"
+                            label.append(metric.split("DelayAvgTime")[0].split('AM')[1])
+                            # self._hadoop_resourcemanager_metrics['ClusterMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
                         else:
-                            self._hadoop_namenode_metrics['UgiMetrics'][metric].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-
-            if 'MetricsSystem' in self._beans[i]['name'] and "sub=Stats" in self._beans[i]['name']:
-                if 'MetricsSystem' in self._metrics:
-                    for metric in self._metrics['MetricsSystem']:
-                        label = [self._cluster]
-                        if 'NumOps' in metric:
-                            key = 'NumOps'
-                            label.append(metric.split('NumOps')[0])
-                            self._hadoop_namenode_metrics['MetricsSystem'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                        elif 'AvgTime' in metric:
-                            key = 'AvgTime'
-                            label.append(metric.split('AvgTime')[0])
-                            self._hadoop_namenode_metrics['MetricsSystem'][key].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
-                        else:
-                            self._hadoop_namenode_metrics['MetricsSystem'][metric].add_metric(label, self._beans[i][metric] if metric in self._beans[i] and self._beans[i][metric] else 0)
+                            continue
+                        self._hadoop_resourcemanager_metrics['ClusterMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
 
 
 class HBaseMetricsCollector(MetricCol):
@@ -1406,7 +951,8 @@ def main():
         args = utils.parse_args()
         port = int(args.port)
 
-        REGISTRY.register(NameNodeMetricsCollector(args.cluster))
+        # REGISTRY.register(NameNodeMetricsCollector(args.cluster))
+        REGISTRY.register(ResourceManagerMetricsCollector(args.cluster))
         # REGISTRY.register(HBaseMetricsCollector(args.cluster,Config().HDFS_ACTIVE_URL))
 
         c = Consul(host='10.110.13.216')

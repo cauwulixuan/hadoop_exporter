@@ -32,3 +32,7 @@ class SpecificCollector():
 2.带参数的包装器。
 3.类包装器。
 
+## TODO:
+1.解析yarn相关指标
+2.解析hbase相关指标
+3.解析MapReduce相关指标

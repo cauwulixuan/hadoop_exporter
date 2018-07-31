@@ -1,0 +1,11 @@
+{
+    "NumActiveNMs": "Current number of active NodeManagers",
+    "NumDecommissionedNMs": "Current number of decommissioned NodeManagers",
+    "NumLostNMs": "Current number of lost NodeManagers for not sending heartbeats",
+    "NumUnhealthyNMs": "Current number of unhealthy NodeManagers",
+    "NumRebootedNMs": "Current number of rebooted NodeManagers",
+    "AMLaunchDelayNumOps": "Total number of AMs launched",
+    "AMLaunchDelayAvgTime": "Average time in milliseconds RM spends to launch AM containers after the AM container is allocated",
+    "AMRegisterDelayNumOps": "Total number of AMs registered",
+    "AMRegisterDelayAvgTime": "Average time in milliseconds AM spends to register with RM after the AM container gets launched"
+}

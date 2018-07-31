@@ -1,4 +1,4 @@
-queueMetrics = {
+{
     "running_0": "Current number of running applications whose elapsed time are less than 60 minutes.",
     "running_60": "Current number of running applications whose elapsed time are between 60 and 300 minutes.",
     "running_300": "Current number of running applications whose elapsed time are between 300 and 1440 minutes.",

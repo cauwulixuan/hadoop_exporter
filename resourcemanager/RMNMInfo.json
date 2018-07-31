@@ -1,0 +1,6 @@
+{
+    "NumContainers": "Total number of containers currently running on the host",
+    "State": "State of the host - valid values are: NEW, RUNNING, UNHEALTHY, DECOMMISSIONED, LOST, REBOOTED",
+    "UsedMemoryMB": "The total amount of memory currently used on the host (in MB)",
+    "AvailableMemoryMB": "The total amount of memory currently available on the host (in MB)"
+}

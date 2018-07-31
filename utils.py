@@ -116,7 +116,7 @@ def get_active_host(cluster, component):
 def get_file_list(file_path_name):
     '''
     This function is to get all .json file name in the specified file_path_name.
-    @param file_path: The file path name, e.g. namenode, ugi, yarn ...
+    @param file_path: The file path name, e.g. namenode, ugi, resourcemanager ...
     @return a list of file name.
     '''
     path = os.path.dirname(os.path.abspath(__file__))
@@ -149,10 +149,10 @@ def parse_args():
         default=c.HDFS_ACTIVE_URL
     )
     parser.add_argument(
-        '-yarn', '--resourcemanager-url',
+        '-resourcemanager', '--resourcemanager-url',
         choices = get_url_list(),
         required=False,
-        help='Hadoop yarn metrics URL. (default "127.0.0.1:8088/jmx")',
+        help='Hadoop resourcemanager metrics URL. (default "127.0.0.1:8088/jmx")',
         default=c.YARN_ACTIVE_URL
     )
     parser.add_argument(
@@ -241,7 +241,7 @@ def main():
     # print args.address
     print parse_args()
     print get_file_list("namenode")
-    print get_file_list("yarn")
+    print get_file_list("resourcemanager")
     print get_active_host("indata", "namenode")
     print get_file_list("common")
     pass
