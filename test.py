@@ -44,7 +44,7 @@ class CustomCollector(object):
         c.add_metric(['baz'], 3.8)
         yield c
         h = HistogramMetricFamily('my_histogram', 'Help text', labels = ['handler'])
-        h.add_metric(['prometheus'], buckets=[('.025',1), ('.05',2), ('.075',3), ('.1',4), ('.25',5), ('.5',6), ('.75',7), ('1.0',8), ('+Inf', 9)], sum_value=45)
+        h.add_metric(['prometheus'], buckets=[('.025',11), ('.05',12), ('.075',13), ('.1',14), ('.25',15), ('.5',16), ('.75',17), ('1.0',18), ('+Inf', 19)], sum_value=135)
         yield h
 
 def main():

@@ -4,15 +4,9 @@
 import yaml
 import re
 import time
-import requests
-import argparse
-from pprint import pprint
-
-import json
-import os
 from sys import exit
 from prometheus_client import start_http_server
-from prometheus_client.core import GaugeMetricFamily, SummaryMetricFamily, HistogramMetricFamily, REGISTRY
+from prometheus_client.core import GaugeMetricFamily, HistogramMetricFamily, REGISTRY
 
 import utils
 from utils import get_module_logger
@@ -40,6 +34,19 @@ class MetricCol(object):
         self._url = url.rstrip('/')
         self._component = component
         self._prefix = 'hadoop_{0}_'.format(service)
+
+        self._file_list = utils.get_file_list(service)
+        self._common_file = utils.get_file_list("common")
+        self._merge_list = self._file_list + self._common_file
+        self._metrics_value = utils.get_metrics(self._url)
+        if self._metrics_value and 'beans' in self._metrics_value:
+            self._beans = self._metrics_value['beans']
+        else:
+            self._beans = []
+
+        self._metrics = {}
+        for i in range(len(self._file_list)):
+            self._metrics.setdefault(self._file_list[i], utils.read_json_file(service, self._file_list[i]))
 
     def collect(self):
         '''
@@ -136,7 +143,10 @@ def common_metrics_info(cluster, beans, service):
             '''
             处理RpcActivity, 一个url里可能有多个RpcActivity模块，可以根据tag.port进行区分
             '''
-            snake_case = "rpc_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+            if 'Rpc' in metric:
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+            else:
+                snake_case = "rpc_" + re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
             label = ["cluster", "tag"]
             if "NumOps" in metric:
                 if num_rpc_flag:
@@ -186,7 +196,7 @@ def common_metrics_info(cluster, beans, service):
             if 'NumOps' in metric:
                 if ugi_num_flag:
                     key = 'NumOps'
-                    label + ["method","state"] if 'Login' in metric else label.append("method")
+                    label.extend(["method","state"]) if 'Login' in metric else label.append("method")
                     ugi_num_flag = 0
                     common_metrics['UgiMetrics'][key] = GaugeMetricFamily(_prefix + 'ugi_method_called_total',
                                                                           "Total number of the times the method is called.",
@@ -196,7 +206,7 @@ def common_metrics_info(cluster, beans, service):
             elif 'AvgTime' in metric:
                 if ugi_avg_flag:
                     key = 'AvgTime'
-                    label + ["method", "state"] if 'Login' in metric else label.append("method")
+                    label.extend(["method", "state"]) if 'Login' in metric else label.append("method")
                     ugi_avg_flag = 0
                     common_metrics['UgiMetrics'][key] = GaugeMetricFamily(_prefix + 'ugi_method_avg_time_milliseconds',
                                                                           "Average turn around time of the method in milliseconds.",
@@ -338,18 +348,22 @@ def common_metrics_info(cluster, beans, service):
                         if 'Login' in metric:
                             method = 'Login'
                             state = metric.split('Login')[1].split('NumOps')[0]
-                            common_metrics['UgiMetrics'][key].add_metric(label + [method, state], beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                            label.extend([method, state])
+                            common_metrics['UgiMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                         else:
-                            label.append(metric.split('NumOps')[0])
+                            method = metric.split('NumOps')[0]
+                            label.append(method)
                             common_metrics['UgiMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                     elif 'AvgTime' in metric:
                         key = 'AvgTime'
                         if 'Login' in metric:
                             method = 'Login'
                             state = metric.split('Login')[1].split('AvgTime')[0]
-                            common_metrics['UgiMetrics'][key].add_metric(label + [method, state], beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                            label.extend([method, state])
+                            common_metrics['UgiMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                         else:
-                            label.append(metric.split('AvgTime')[0])
+                            method = metric.split('AvgTime')[0]
+                            label.append(method)
                             common_metrics['UgiMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                     else:
                         common_metrics['UgiMetrics'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
@@ -377,20 +391,8 @@ class NameNodeMetricsCollector(MetricCol):
 
     def __init__(self, cluster):
         MetricCol.__init__(self, cluster, Config().HDFS_ACTIVE_URL, "HDFS", "namenode")
-        # self._url = "{0}?qry=Hadoop:service=NameNode,name=*".format(self._base_url)
-        self._file_list = utils.get_file_list("namenode")
-        self._common_file = utils.get_file_list("common")
-        self._merge_list = self._file_list + self._common_file
-        self._metrics_value = utils.get_metrics(self._url)
-        if self._metrics_value and 'beans' in self._metrics_value:
-            self._beans = self._metrics_value['beans']
-        else:
-            self._beans = []
-
-        self._metrics = {}
         self._hadoop_namenode_metrics = {}
         for i in range(len(self._file_list)):
-            self._metrics.setdefault(self._file_list[i], utils.read_json_file("namenode", self._file_list[i]))
             self._hadoop_namenode_metrics.setdefault(self._file_list[i], {})
 
     def collect(self):
@@ -416,7 +418,6 @@ class NameNodeMetricsCollector(MetricCol):
 
     def _setup_metrics_labels(self):
         # The metrics we want to export.
-
         if 'NameNodeActivity' in self._metrics:
             num_namenode_flag,avg_namenode_flag,ops_namenode_flag = 1,1,1
             for metric in self._metrics['NameNodeActivity']:
@@ -582,9 +583,7 @@ class NameNodeMetricsCollector(MetricCol):
     def _get_metrics(self, beans):
         # bean is a type of <Dict>
         # status is a type of <Str>
-
         for i in range(len(beans)):
-
             if 'NameNodeActivity' in beans[i]['name']:
                 if 'NameNodeActivity' in self._metrics:
                     for metric in self._metrics['NameNodeActivity']:
@@ -694,20 +693,8 @@ class ResourceManagerMetricsCollector(MetricCol):
     
     def __init__(self, cluster):
         MetricCol.__init__(self, cluster, Config().YARN_ACTIVE_URL, "YARN", "resourcemanager")
-        # self._url = "{0}?qry=Hadoop:service=NameNode,name=*".format(self._base_url)
-        self._file_list = utils.get_file_list("resourcemanager")
-        self._common_file = utils.get_file_list("common")
-        self._merge_list = self._file_list + self._common_file
-        self._metrics_value = utils.get_metrics(self._url)
-        if self._metrics_value and 'beans' in self._metrics_value:
-            self._beans = self._metrics_value['beans']
-        else:
-            self._beans = []
-
-        self._metrics = {}
         self._hadoop_resourcemanager_metrics = {}
         for i in range(len(self._file_list)):
-            self._metrics.setdefault(self._file_list[i], utils.read_json_file("resourcemanager", self._file_list[i]))
             self._hadoop_resourcemanager_metrics.setdefault(self._file_list[i], {})
 
     def collect(self):
@@ -880,87 +867,917 @@ class ResourceManagerMetricsCollector(MetricCol):
                         self._hadoop_resourcemanager_metrics['ClusterMetrics'][key].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
 
 
-class HBaseMetricsCollector(MetricCol):
+class MapReduceMetricsCollector(MetricCol):
 
     def __init__(self, cluster):
-        MetricCol.__init__(self, cluster, Config().HBASE_URL, "hbase")
-        self._url = "http://10.110.13.43:16010/jmx?qry=Hadoop:service=HBase,name=Master,sub=IPC"
-        self._file_list = utils.get_file_list("hbase")
-
-        self._metrics = {}
-        self._hadoop_hbase_metrics = {}
-
-        for i in range(len(self._file_list)):
-            self._metrics.setdefault(self._file_list[i], utils.read_json_file("hbase", self._file_list[i]))
-            self._hadoop_hbase_metrics.setdefault(self._file_list[i], {})
+        MetricCol.__init__(self, cluster, Config().MAPREDUCE2_URL, "MAPREDUCE", "jobhistoryserver")
+        self._hadoop_jobhistoryserver_metrics = {}
+        # for i in range(len(self._file_list)):
+        #     self._hadoop_jobhistoryserver_metrics.setdefault(self._file_list[i], {})
 
     def collect(self):
         # Request data from ambari Collect Host API
         # Request exactly the System level information we need from node
         # beans returns a type of 'List'
-        metrics = utils.get_metrics(self._url)
-        beans = metrics['beans']
+
+        # set up all metrics with labels and descriptions.
+        # self._setup_metrics_labels()
+
+        # add metric value to every metric.
+        # self._get_metrics(self._beans)
+
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "jobhistoryserver")
+        self._hadoop_jobhistoryserver_metrics.update(common_metrics())
+
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
+            for metric in self._hadoop_jobhistoryserver_metrics[service]:
+                yield self._hadoop_jobhistoryserver_metrics[service][metric]
+
+
+class DataNodeMetricCollector(MetricCol):
+    def __init__(self, cluster):
+        MetricCol.__init__(self, cluster, Config().DATA_NODE1_URL, "DATANODE", "datanode")
+        self._hadoop_datanode_metrics = {}
+        for i in range(len(self._file_list)):
+            self._hadoop_datanode_metrics.setdefault(self._file_list[i], {})
+
+    def collect(self):
+        # Request data from ambari Collect Host API
+        # Request exactly the System level information we need from node
+        # beans returns a type of 'List'
 
         # set up all metrics with labels and descriptions.
         self._setup_metrics_labels()
 
         # add metric value to every metric.
-        self._get_metrics(beans)
+        self._get_metrics(self._beans)
 
-        # yield all metrics
-        for i in range(len(self._file_list)):
-            service = self._file_list[i]
-            for metric in self._hadoop_hbase_metrics[service]:
-                yield self._hadoop_hbase_metrics[service][metric]
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "datanode")
+        self._hadoop_datanode_metrics.update(common_metrics())
+
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
+            for metric in self._hadoop_datanode_metrics[service]:
+                yield self._hadoop_datanode_metrics[service][metric]
 
     def _setup_metrics_labels(self):
-        if 'IPC' in self._metrics:
-            ipc_flag = 1
-            for metric in self._metrics['IPC']:
-                if 'TotalCallTime' in metric:
-                    if ipc_flag:
-                        key = 'TotalCallTime'
-                        ipc_flag = 0
-                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily('hadoop_hbase_call_time_total',
-                                                                                     'Total call time counts in each quantile')
+        # The metrics we want to export.
+
+        if 'DataNodeInfo' in self._metrics:
+            for metric in self._metrics['DataNodeInfo']:
+                label = ["cluster", "version"]
+                if 'ActorState' in metric:
+                    label.append("host")
+                    name = self._prefix + 'actor_state'
+                elif 'VolumeInfo' in metric:
+                    label.extend(["path", "state"])
+                    name = self._prefix + 'volume_state'
+
+                else:
+                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                    name = self._prefix + snake_case
+                self._hadoop_datanode_metrics['DataNodeInfo'][metric] = GaugeMetricFamily(name,
+                                                                                          self._metrics['DataNodeInfo'][metric],
+                                                                                          labels=label)
+        
+        if 'DataNodeActivity' in self._metrics:
+            block_flag, client_flag = 1, 1
+            for metric in self._metrics['DataNodeActivity']:
+                if 'Blocks' in metric:
+                    if block_flag:
+                        label = ['cluster', 'host', 'oper']
+                        key = "Blocks"
+                        name = "block_operations_total"
+                        descriptions = "Total number of blocks in different oprations"
+                        block_flag = 0
+                    else:
+                        continue
+                elif 'Client' in metric:
+                    if client_flag:
+                        label = ['cluster', 'host', 'oper', 'client']
+                        key = "Client"
+                        name = "from_client_total"
+                        descriptions = "Total number of each operations from different client"
+                        client_flag = 0
                     else:
                         continue
                 else:
-                    pass
+                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                    label = ['cluster', 'host']
+                    key = metric
+                    name = snake_case                    
+                    descriptions = self._metrics['DataNodeActivity'][metric]
+                self._hadoop_datanode_metrics['DataNodeActivity'][key] = GaugeMetricFamily(self._prefix + name,
+                                                                                           descriptions,
+                                                                                           labels=label)
+                    
+        if 'DataNodeVolume' in self._metrics:
+            iorate_num_flag, iorate_avg_flag = 1, 1
+            for metric in self._metrics['DataNodeVolume']:
+                label = ['cluster', 'host']
+                if 'IoRateNumOps' in metric:
+                    if iorate_num_flag:
+                        label.append('oper')
+                        iorate_num_flag = 0
+                        key = "IoRateNumOps"
+                        name = "file_io_operations_total"
+                        descriptions = "The number of each file io operations within an interval time of metric"
+                    else:
+                        continue
+                elif 'IoRateAvgTime' in metric:
+                    if iorate_avg_flag:
+                        label.append('oper')
+                        iorate_avg_flag = 0
+                        key = "IoRateAvgTime"
+                        name = "file_io_operations_milliseconds"
+                        descriptions = "Mean time of each file io operations in milliseconds"
+                    else:
+                        continue
+                else:
+                    key = metric
+                    descriptions = self._metrics['DataNodeVolume'][metric]
+                    if 'NumOps' in metric:
+                        name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric.split("NumOps")[0]).lower() + "_total"
+                    elif 'AvgTime' in metric:
+                        name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric.split("AvgTime")[0]).lower() + "_time_milliseconds"
+                    else:
+                        name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                self._hadoop_datanode_metrics['DataNodeVolume'][key] = GaugeMetricFamily(self._prefix + name, 
+                                                                                         descriptions,
+                                                                                         labels = label)
+
+        if 'FSDatasetState' in self._metrics:
+            for metric in self._metrics['FSDatasetState']:
+                label = ['cluster', 'host']
+                if "Num" in metric:
+                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric.split("Num")[1]).lower()
+                else:
+                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                self._hadoop_datanode_metrics['FSDatasetState'][metric] = GaugeMetricFamily(self._prefix + snake_case,
+                                                                                            self._metrics['FSDatasetState'][metric],
+                                                                                            labels = label)
+
+                
 
     def _get_metrics(self, beans):
         # bean is a type of <Dict>
         # status is a type of <Str>
 
         for i in range(len(beans)):
+
+            if 'DataNodeInfo' in beans[i]['name']:
+                if 'DataNodeInfo' in self._metrics:
+                    for metric in self._metrics['DataNodeInfo']:
+                        version = beans[i]['Version']
+                        if 'BPServiceActorInfo' in beans[i]:
+                            actor_info_list = yaml.safe_load(beans[i]['BPServiceActorInfo'])
+                            for j in range(len(actor_info_list)):
+                                host = actor_info_list[j]['NamenodeAddress'].split(':')[0]
+                                label = [self._cluster, version, host]
+                                if 'state' == "RUNNING":
+                                    value = 1.0
+                                else:
+                                    value = 0.0
+                                # self._hadoop_datanode_metrics['DataNodeInfo'][metric].add_metric(label, value)
+                        elif 'VolumeInfo' in beans[i]:
+                            volume_info_dict = yaml.safe_load(beans[i]['VolumeInfo'])
+                            for k, v in volume_info_dict:
+                                path = k
+                                for key, value in v:
+                                    state = key
+                                    label = [self._cluster, version, path, state]
+                                    # self._hadoop_datanode_metrics['DataNodeInfo'][metric].add_metric(label, value)
+                        else:
+                            label = [self._cluster, version]
+                            value = beans[i][metric]
+                        self._hadoop_datanode_metrics['DataNodeInfo'][metric].add_metric(label, value)
+
+            if 'DataNodeActivity' in beans[i]['name']:
+                if 'DataNodeActivity' in self._metrics:
+                    for metric in self._metrics['DataNodeActivity']:
+                        label = [self._cluster]
+                        host = beans[i]['tag.Hostname']
+                        label.append(host)
+                        if 'Blocks' in metric:
+                            oper = metric.split("Blocks")[1]
+                            label.append(oper)
+                            key = "Blocks"
+                        elif 'Client' in metric:
+                            oper = metric.split("Client")[0].split("From")[0]
+                            client = metric.split("Client")[0].split("From")[1]
+                            label.extend([oper, client])
+                            key = "Client"
+                        else:
+                            key = metric
+                        self._hadoop_datanode_metrics['DataNodeActivity'][key].add_metric(label,
+                                                                                          beans[i][metric] if metric in beans[i] else 0)
+
+            if 'DataNodeVolume' in beans[i]['name']:
+                if 'DataNodeVolume' in self._metrics:
+                    for metric in self._metrics['DataNodeVolume']:
+                        label = [self._cluster]
+                        host = beans[i]['tag.Hostname']
+                        label.append(host)
+                        if 'IoRateNumOps' in metric:
+                            oper = metric.split("IoRateNumOps")[0]
+                            label.append(oper)
+                            key = "IoRateNumOps"
+                        elif 'IoRateAvgTime' in metric:
+                            oper = metric.split("IoRateAvgTime")[0]
+                            label.append(oper)
+                            key = "IoRateAvgTime"
+                        else:
+                            key = metric
+                        self._hadoop_datanode_metrics['DataNodeVolume'][key].add_metric(label,
+                                                                                        beans[i][metric] if metric in beans[i] else 0)
+
+            if 'FSDatasetState' in beans[i]['name'] and 'FSDatasetState' in beans[i]['modelerType']:
+                if 'FSDatasetState' in self._metrics:
+                    for metric in self._metrics['FSDatasetState']:
+                        label = [self._cluster]
+                        host = beans[i]['tag.Hostname']
+                        label.append(host)
+                        self._hadoop_datanode_metrics['FSDatasetState'][metric].add_metric(label, beans[i][metric] if metric in beans[i] else 0)
+
+
+class JournalNodeMetricCollector(MetricCol):
+    def __init__(self, cluster):
+        MetricCol.__init__(self, cluster, Config().JOURNAL_NODE1_URL, "JOURNALNODE", "journalnode")
+        self._hadoop_journalnode_metrics = {}
+        for i in range(len(self._file_list)):
+            self._hadoop_journalnode_metrics.setdefault(self._file_list[i], {})
+
+    def collect(self):
+        # Request data from ambari Collect Host API
+        # Request exactly the System level information we need from node
+        # beans returns a type of 'List'
+
+        # set up all metrics with labels and descriptions.
+        self._setup_metrics_labels()
+
+        # add metric value to every metric.
+        self._get_metrics(self._beans)
+
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "journalnode")
+        self._hadoop_journalnode_metrics.update(common_metrics())
+
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
+            for metric in self._hadoop_journalnode_metrics[service]:
+                yield self._hadoop_journalnode_metrics[service][metric]
+
+    def _setup_metrics_labels(self):
+        # The metrics we want to export.
+
+        if 'Journal-prod' in self._metrics:
+            prod_num_flag, a_60_latency_flag, a_300_latency_flag, a_3600_latency_flag = 1, 1, 1, 1
+            for metric in self._metrics['Journal-prod']:
+                label = ["cluster", "host"]
+                if 'Syncs60s' in metric:
+                    if a_60_latency_flag:
+                        a_60_latency_flag = 0
+                        key = "Syncs60"
+                        name = self._prefix + 'sync60s_latency_microseconds'
+                        descriptions = "The percentile of sync latency in microseconds in 60s granularity"
+                        self._hadoop_journalnode_metrics['Journal-prod'][key] = HistogramMetricFamily(name,
+                                                                                                      descriptions,
+                                                                                                      labels=label)
+                    else:
+                        continue
+                elif 'Syncs300s' in metric:
+                    if a_300_latency_flag:
+                        a_300_latency_flag = 0
+                        key = "Syncs300"
+                        name = self._prefix + 'sync300s_latency_microseconds'
+                        descriptions = "The percentile of sync latency in microseconds in 300s granularity"
+                        self._hadoop_journalnode_metrics['Journal-prod'][key] = HistogramMetricFamily(name,
+                                                                                                      descriptions,
+                                                                                                      labels=label)
+                    else:
+                        continue
+                elif 'Syncs3600s' in metric:
+                    if a_3600_latency_flag:
+                        a_3600_latency_flag = 0
+                        key = "Syncs3600"
+                        name = self._prefix + 'sync3600s_latency_microseconds'
+                        descriptions = "The percentile of sync latency in microseconds in 3600s granularity"
+                        self._hadoop_journalnode_metrics['Journal-prod'][key] = HistogramMetricFamily(name,
+                                                                                                      descriptions,
+                                                                                                      labels=label)
+                    else:
+                        continue
+                else:
+                    snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                    self._hadoop_journalnode_metrics['Journal-prod'][metric] = GaugeMetricFamily(self._prefix + snake_case,
+                                                                                                 self._metrics['Journal-prod'][metric],
+                                                                                                 labels=label)
+
+        
+
+    def _get_metrics(self, beans):
+        # bean is a type of <Dict>
+        # status is a type of <Str>
+
+        for i in range(len(beans)):
+            if 'Journal-prod' in beans[i]['name']:
+                if 'Journal-prod' in self._metrics:
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    a_60_sum, a_300_sum, a_3600_sum = 0.0, 0.0, 0.0
+                    a_60_value, a_300_value, a_3600_value = [], [], []
+                    a_60_percentile, a_300_percentile, a_3600_percentile = [], [], []
+
+                    for metric in beans[i]:
+                        if metric[0].isupper():
+                            '''
+                            different sync times corresponding to the same percentile
+                            for instance:
+                                sync = 60, percentile can be [50, 75, 95, 99]
+                                sync = 300, percentile still can be [50, 75, 95, 99]
+                            Therefore, here is the method to distinguish these metrics from each sync times.
+                            '''
+                            if "Syncs60s" in metric:                                
+                                if 'NumOps' in metric:
+                                    a_60_count = beans[i][metric]
+                                else:
+                                    tmp = metric.split("thPercentileLatencyMicros")[0].split("Syncs")[1].split("s")
+                                    a_60_percentile.append(str(float(tmp[1]) / 100.0))
+                                    a_60_value.append(beans[i][metric])
+                                    a_60_sum += beans[i][metric]
+                            elif 'Syncs300' in metric:
+                                if 'NumOps' in metric:
+                                    a_300_count = beans[i][metric]
+                                else:
+                                    tmp = metric.split("thPercentileLatencyMicros")[0].split("Syncs")[1].split("s")
+                                    a_300_percentile.append(str(float(tmp[1]) / 100.0))
+                                    a_300_value.append(beans[i][metric])
+                                    a_300_sum += beans[i][metric]
+                            elif 'Syncs3600' in metric:
+                                if 'NumOps' in metric:
+                                    a_3600_count = beans[i][metric]
+                                else:
+                                    tmp = metric.split("thPercentileLatencyMicros")[0].split("Syncs")[1].split("s")
+                                    a_3600_percentile.append(str(float(tmp[1]) / 100.0))
+                                    a_3600_value.append(beans[i][metric])
+                                    a_3600_sum += beans[i][metric]
+                            else:
+                                key = metric
+                                self._hadoop_journalnode_metrics['Journal-prod'][key].add_metric(label, beans[i][metric])
+                    a_60_bucket = zip(a_60_percentile, a_60_value)
+                    a_300_bucket = zip(a_300_percentile, a_300_value)
+                    a_3600_bucket = zip(a_3600_percentile, a_3600_value)
+                    a_60_bucket.sort()
+                    a_300_bucket.sort()
+                    a_3600_bucket.sort()
+                    a_60_bucket.append(("+Inf", a_60_count))
+                    a_300_bucket.append(("+Inf", a_300_count))
+                    a_3600_bucket.append(("+Inf", a_3600_count))
+                    self._hadoop_journalnode_metrics['Journal-prod']['Syncs60'].add_metric(label, buckets = a_60_bucket, sum_value = a_60_sum)
+                    self._hadoop_journalnode_metrics['Journal-prod']['Syncs300'].add_metric(label, buckets = a_300_bucket, sum_value = a_300_sum)
+                    self._hadoop_journalnode_metrics['Journal-prod']['Syncs3600'].add_metric(label, buckets = a_3600_bucket, sum_value = a_3600_sum)
+
+
+class HBaseMetricCollector(MetricCol):
+    def __init__(self, cluster):
+        MetricCol.__init__(self, cluster, Config().HBASE_ACTIVE_URL, "HBASE", "hbase")
+        self._hadoop_hbase_metrics = {}
+        for i in range(len(self._file_list)):
+            self._hadoop_hbase_metrics.setdefault(self._file_list[i], {})
+
+    def collect(self):
+        # Request data from ambari Collect Host API
+        # Request exactly the System level information we need from node
+        # beans returns a type of 'List'
+
+        # set up all metrics with labels and descriptions.
+        self._setup_metrics_labels()
+
+        # add metric value to every metric.
+        self._get_metrics(self._beans)
+
+        # update namenode metrics with common metrics
+        common_metrics = common_metrics_info(self._cluster, self._beans, "hbase")
+        self._hadoop_hbase_metrics.update(common_metrics())
+
+        for i in range(len(self._merge_list)):
+            service = self._merge_list[i]
+            for metric in self._hadoop_hbase_metrics[service]:
+                yield self._hadoop_hbase_metrics[service][metric]
+
+    def _setup_metrics_labels(self):
+        # The metrics we want to export.
+
+        if 'Server' in self._metrics:
+            for metric in self._metrics['Server']:
+                label = ["cluster", "host"]
+                name = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                if 'RegionServersState' in metric:
+                    label.append('server')
+                elif 'numRegionServers' in metric:
+                    name = 'live_region'
+                elif 'numDeadRegionServers' in metric:
+                    name = 'dead_region'
+                else:
+                    pass
+                self._hadoop_hbase_metrics['Server'][metric] = GaugeMetricFamily(self._prefix + '_server' + name,
+                                                                                 self._metrics['Server'][metric],
+                                                                                 labels=label)
+        if 'Balancer' in self._metrics:
+            balancer_flag = 1
+            for metric in self._metrics['Balancer']:
+                label = ["cluster", "host"]
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                    name = snake_case
+                    self._hadoop_hbase_metrics['Balancer'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                       self._metrics['Balancer'][metric],
+                                                                                       labels=label)
+                elif 'BalancerCluster' in metric:
+                    if balancer_flag:
+                        balancer_flag = 0
+                        name = 'balancer_cluster_latency_microseconds'
+                        key = 'BalancerCluster'
+                        self._hadoop_hbase_metrics['Balancer'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                               "The percentile of balancer cluster latency in microseconds",
+                                                                                               labels=label)
+
+                    else:
+                        continue
+                else:
+                    name = 'balancer' + snake_case
+                    self._hadoop_hbase_metrics['Balancer'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                       self._metrics['Balancer'][metric],
+                                                                                       labels=label)
+        if 'AssignmentManger' in self._metrics:
+            bulkassign_flag, assign_flag = 1, 1
+            for metric in self._metrics['AssignmentManger']:
+                label = ["cluster", "host"]
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                    name = snake_case
+                    self._hadoop_hbase_metrics['AssignmentManger'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                               self._metrics['AssignmentManger'][metric],
+                                                                                               labels=label)
+                elif 'BulkAssign' in metric:
+                    if bulkassign_flag:
+                        bulkassign_flag = 0
+                        name = 'bulkassign_latency_microseconds'
+                        key = 'BulkAssign'
+                        self._hadoop_hbase_metrics['AssignmentManger'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                                    "The percentile of bulkassign latency in microseconds",
+                                                                                                    labels=label)
+
+                    else:
+                        continue
+                elif 'Assign' in metric:
+                    if assign_flag:
+                        assign_flag = 0
+                        name = 'assign_latency_microseconds'
+                        key = 'Assign'
+                        self._hadoop_hbase_metrics['AssignmentManger'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                                    "The percentile of assign latency in microseconds",
+                                                                                                    labels=label)
+
+                    else:
+                        continue
+                else:
+                    name = 'assignmentmanger' + snake_case
+                    self._hadoop_hbase_metrics['AssignmentManger'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                               self._metrics['AssignmentManger'][metric],
+                                                                                               labels=label)
+        if 'IPC' in self._metrics:
+            total_calltime_flag, response_size_flag, process_calltime_flag, queue_calltime_flag, request_size_flag, exception_flag = 1, 1, 1, 1, 1, 1
+            for metric in self._metrics['IPC']:
+                label = ["cluster", "host"]
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                    name = 'ipc' + snake_case
+                    self._hadoop_hbase_metrics['IPC'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                  self._metrics['IPC'][metric],
+                                                                                  labels=label)
+                elif 'RangeCount_' in metric:
+                    name = metric.replace("-", "_").lower()
+                    self._hadoop_hbase_metrics['IPC'][metric] = GaugeMetricFamily(self._prefix + 'ipc' + name,
+                                                                                  self._metrics['IPC'][metric],
+                                                                                  labels=label)
+                elif 'TotalCallTime' in metric:
+                    if total_calltime_flag:
+                        total_calltime_flag = 0
+                        name = 'ipc_total_calltime_latency_microseconds'
+                        key = 'TotalCallTime'
+                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                       "The percentile of total calltime latency in microseconds",
+                                                                                       labels=label)
+                    else:
+                        continue
+                elif 'ResponseSize' in metric:
+                    if response_size_flag:
+                        response_size_flag = 0
+                        name = 'ipc_response_size_bytes'
+                        key = 'ResponseSize'
+                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                       "The percentile of response size in bytes",
+                                                                                       labels=label)
+
+                    else:
+                        continue
+                elif 'ProcessCallTime' in metric:
+                    if process_calltime_flag:
+                        process_calltime_flag = 0
+                        name = 'ipc_prcess_calltime_latency_microseconds'
+                        key = 'ProcessCallTime'
+                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                       "The percentile of process calltime latency in microseconds",
+                                                                                       labels=label)
+                    else:
+                        continue
+                elif 'RequestSize' in metric:
+                    if request_size_flag:
+                        request_size_flag = 0
+                        name = 'ipc_request_size_bytes'
+                        key = 'RequestSize'
+                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                       "The percentile of request size in bytes",
+                                                                                       labels=label)
+
+                    else:
+                        continue
+                elif 'QueueCallTime' in metric:
+                    if queue_calltime_flag:
+                        queue_calltime_flag = 0
+                        name = 'ipc_queue_calltime_latency_microseconds'
+                        key = 'QueueCallTime'
+                        self._hadoop_hbase_metrics['IPC'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                       "The percentile of queue calltime latency in microseconds",
+                                                                                       labels=label)
+                elif 'exceptions' in metric:
+                    if exception_flag:
+                        exception_flag = 0
+                        name = 'ipc_exceptions_total'
+                        key = 'exceptions'
+                        label.append("type")
+                        self._hadoop_hbase_metrics['IPC'][key] = GaugeMetricFamily(self._prefix + name, 
+                                                                                   "Exceptions caused by requests",
+                                                                                   labels = label)
+                    else:
+                        continue
+                else:
+                    name = 'ipc' + snake_case
+                    self._hadoop_hbase_metrics['IPC'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                  self._metrics['IPC'][metric],
+                                                                                  labels=label)
+        if 'FileSystem' in self._metrics:
+            hlog_split_time_flag, metahlog_split_time_flag, hlog_split_size_flag, metahlog_split_size_flag = 1, 1, 1, 1
+            for metric in self._metrics['FileSystem']:
+                label = ["cluster", "host"]
+                snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+                if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                    name = snake_case
+                    self._hadoop_hbase_metrics['FileSystem'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                         self._metrics['FileSystem'][metric],
+                                                                                         labels=label)
+                elif 'MetaHlogSplitTime' in metric:
+                    if metahlog_split_time_flag:
+                        metahlog_split_time_flag = 0
+                        name = 'metahlog_split_time_latency_microseconds'
+                        key = 'MetaHlogSplitTime'
+                        self._hadoop_hbase_metrics['FileSystem'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                              "The percentile of time latency it takes to finish splitMetaLog()",
+                                                                                              labels=label)
+
+                    else:
+                        continue
+                elif 'HlogSplitTime' in metric:
+                    if hlog_split_time_flag:
+                        hlog_split_time_flag = 0
+                        name = 'hlog_split_time_latency_microseconds'
+                        key = 'HlogSplitTime'
+                        self._hadoop_hbase_metrics['FileSystem'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                              "The percentile of time latency it takes to finish WAL.splitLog()",
+                                                                                              labels=label)
+                    else:
+                        continue
+                elif 'MetaHlogSplitSize' in metric:
+                    if metahlog_split_size_flag:
+                        metahlog_split_size_flag = 0
+                        name = 'metahlog_split_size_bytes'
+                        key = 'MetaHlogSplitSize'
+                        self._hadoop_hbase_metrics['FileSystem'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                              "The percentile of hbase:meta WAL files size being split",
+                                                                                              labels=label)
+
+                    else:
+                        continue
+                elif 'HlogSplitSize' in metric:
+                    if hlog_split_size_flag:
+                        hlog_split_size_flag = 0
+                        name = 'hlog_split_size_bytes'
+                        key = 'HlogSplitSize'
+                        self._hadoop_hbase_metrics['FileSystem'][key] = HistogramMetricFamily(self._prefix + name,
+                                                                                              "The percentile of WAL files size being split",
+                                                                                              labels=label)
+                    else:
+                        continue                
+                else:
+                    name = snake_case
+                    self._hadoop_hbase_metrics['FileSystem'][metric] = GaugeMetricFamily(self._prefix + name,
+                                                                                         self._metrics['FileSystem'][metric],
+                                                                                         labels=label)
+
+    def _get_metrics(self, beans):
+        # bean is a type of <Dict>
+        # status is a type of <Str>
+
+        for i in range(len(beans)):
+            if 'Server' in beans[i]['name'] and 'Master' in beans[i]['name']:
+                if 'Server' in self._metrics:
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    for metric in self._metrics['Server']:
+                        if 'RegionServersState' in metric:
+                            if 'tag.liveRegionServers' in beans[i] and beans[i]['tag.liveRegionServers']:
+                                live_region_servers = yaml.safe_load(beans[i]['tag.liveRegionServers'])
+                                live_region_list = live_region_servers.split(';')
+                                for j in range(len(live_region_list)):
+                                    live_label = label
+                                    server = live_region_list[j].split(',')[0]
+                                    live_label.append(server)
+                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(live_label, 1.0)
+                            else:
+                                pass
+                            if 'tag.deadRegionServers' in beans[i] and beans[i]['tag.deadRegionServers']:
+                                dead_region_servers = yaml.safe_load(beans[i]['tag.deadRegionServers'])
+                                dead_region_list = dead_region_servers.split(';')
+                                for j in range(len(dead_region_list)):
+                                    dead_label = label
+                                    server = dead_region_list[j].split(',')[0]
+                                    dead_label.append(server)
+                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(dead_label, 0.0)
+                            else:
+                                pass
+                        elif 'ActiveMaster' in metric:
+                            if 'tag.isActiveMaster' in beans[i]:
+                                state = beans[i]['tag.isActiveMaster']
+                                value = float(bool(state))
+                                self._hadoop_hbase_metrics['Server'][metric].add_metric(label, value)
+                        else:
+                            self._hadoop_hbase_metrics['Server'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+
+            if 'Balancer' in beans[i]['name']:
+                if 'Balancer' in self._metrics:
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    balancer_sum = 0.0
+                    balancer_value, balancer_percentile = [], []
+
+                    for metric in self._metrics['Balancer']:
+                        if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                            self._hadoop_hbase_metrics['Balancer'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                        elif 'BalancerCluster' in metric:
+                            if '_num_ops' in metric:
+                                balancer_count = beans[i][metric]
+                                key = 'BalancerCluster'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                balancer_percentile.append(str(float(per) / 100.0))
+                                balancer_value.append(beans[i][metric])
+                                balancer_sum += beans[i][metric]
+                        else:
+                            self._hadoop_hbase_metrics['Balancer'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                    balancer_bucket = zip(balancer_percentile, balancer_value)
+                    balancer_bucket.sort()
+                    balancer_bucket.append(("+Inf", balancer_count))
+                    self._hadoop_hbase_metrics['Balancer'][key].add_metric(label, buckets = balancer_bucket, sum_value = balancer_sum)
+
+            if 'AssignmentManger' in beans[i]['name']:
+                if 'AssignmentManger' in self._metrics:
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    bulkassign_sum, assign_sum = 0.0, 0.0
+                    bulkassign_value, bulkassign_percentile, assign_value, assign_percentile = [], [], [], []
+
+                    for metric in self._metrics['AssignmentManger']:
+                        if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
+                            self._hadoop_hbase_metrics['AssignmentManger'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                        elif 'BulkAssign' in metric:
+                            if '_num_ops' in metric:
+                                bulkassign_count = beans[i][metric]
+                                bulkassign_key = 'BulkAssign'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                bulkassign_percentile.append(str(float(per) / 100.0))
+                                bulkassign_value.append(beans[i][metric])
+                                bulkassign_sum += beans[i][metric]
+                        elif 'Assign' in metric:
+                            if '_num_ops' in metric:
+                                assign_count = beans[i][metric]
+                                assign_key = 'Assign'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                assign_percentile.append(str(float(per) / 100.0))
+                                assign_value.append(beans[i][metric])
+                                assign_sum += beans[i][metric]
+                        else:
+                            self._hadoop_hbase_metrics['AssignmentManger'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                    bulkassign_bucket = zip(bulkassign_percentile, bulkassign_value)
+                    bulkassign_bucket.sort()
+                    bulkassign_bucket.append(("+Inf", bulkassign_count))
+                    assign_bucket = zip(assign_percentile, assign_value)
+                    assign_bucket.sort()
+                    assign_bucket.append(("+Inf", assign_count))
+                    self._hadoop_hbase_metrics['AssignmentManger'][bulkassign_key].add_metric(label, buckets = bulkassign_bucket, sum_value = bulkassign_sum)
+                    self._hadoop_hbase_metrics['AssignmentManger'][assign_key].add_metric(label, buckets = assign_bucket, sum_value = assign_sum)
+
             if 'IPC' in beans[i]['name']:
                 if 'IPC' in self._metrics:
-                    count_value = 0
-                    sum_value = 0
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    total_calltime_sum, process_calltime_sum, queue_calltime_sum, response_sum, request_sum = 0.0, 0.0, 0.0, 0.0, 0.0
+                    total_calltime_value, process_calltime_value, queue_calltime_value, response_value, request_value = [], [], [], [], []
+                    total_calltime_percentile, process_calltime_percentile, queue_calltime_percentile, response_percentile, request_percentile = [], [], [], [], []
+
                     for metric in self._metrics['IPC']:
-                        key = 'TotalCallTime'
-                        if 'TotalCallTime' in metric and 'percentile' in metric:
-                            count_value += 1
-                            sum_value += beans[i][metric]
-                        self._hadoop_hbase_metrics['IPC'][key].add_metric([], count_value, sum_value)
+                        if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric or 'RangeCount_' in metric:
+                            self._hadoop_hbase_metrics['IPC'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                        elif 'TotalCallTime' in metric:
+                            if '_num_ops' in metric:
+                                total_calltime_count = beans[i][metric]
+                                total_calltime_key = 'TotalCallTime'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                total_calltime_percentile.append(str(float(per) / 100.0))
+                                total_calltime_value.append(beans[i][metric])
+                                total_calltime_sum += beans[i][metric]
+                        elif 'ProcessCallTime' in metric:
+                            if '_num_ops' in metric:
+                                process_calltime_count = beans[i][metric]
+                                process_calltime_key = 'ProcessCallTime'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                process_calltime_percentile.append(str(float(per) / 100.0))
+                                process_calltime_value.append(beans[i][metric])
+                                process_calltime_sum += beans[i][metric]
+                        elif 'QueueCallTime' in metric:
+                            if '_num_ops' in metric:
+                                queue_calltime_count = beans[i][metric]
+                                queue_calltime_key = 'QueueCallTime'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                queue_calltime_percentile.append(str(float(per) / 100.0))
+                                queue_calltime_value.append(beans[i][metric])
+                                queue_calltime_sum += beans[i][metric]
+                        elif 'ResponseSize' in metric:
+                            if '_num_ops' in metric:
+                                response_count = beans[i][metric]
+                                response_key = 'ResponseSize'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                response_percentile.append(str(float(per) / 100.0))
+                                response_value.append(beans[i][metric])
+                                response_sum += beans[i][metric]
+                        elif 'RequestSize' in metric:
+                            if '_num_ops' in metric:
+                                request_count = beans[i][metric]
+                                request_key = 'RequestSize'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                request_percentile.append(str(float(per) / 100.0))
+                                request_value.append(beans[i][metric])
+                                request_sum += beans[i][metric]
+                        elif 'exceptions' in metric:
+                            key = 'exceptions'
+                            if 'exceptions' == metric:
+                                new_label = label
+                                new_label.append("sum")
+                            else:
+                                new_label = label
+                                type = metric.split(".")[1]
+                                new_label.append(type)
+                            self._hadoop_hbase_metrics['IPC'][key].add_metric(new_label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                        else:
+                            self._hadoop_hbase_metrics['IPC'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
 
+                    total_calltime_bucket = zip(total_calltime_percentile, total_calltime_value)
+                    total_calltime_bucket.sort()
+                    total_calltime_bucket.append(("+Inf", total_calltime_count))
+                    process_calltime_bucket = zip(process_calltime_percentile, process_calltime_value)
+                    process_calltime_bucket.sort()
+                    process_calltime_bucket.append(("+Inf", process_calltime_count))
+                    queue_calltime_bucket = zip(queue_calltime_percentile, queue_calltime_value)
+                    queue_calltime_bucket.sort()
+                    queue_calltime_bucket.append(("+Inf", queue_calltime_count))
+                    response_bucket = zip(response_percentile, response_value)
+                    response_bucket.sort()
+                    response_bucket.append(("+Inf", response_count))
+                    request_bucket = zip(request_percentile, request_value)
+                    request_bucket.sort()
+                    request_bucket.append(("+Inf", request_count))
+                    
+                    self._hadoop_hbase_metrics['IPC'][total_calltime_key].add_metric(label, buckets = total_calltime_bucket, sum_value = total_calltime_sum)
+                    self._hadoop_hbase_metrics['IPC'][process_calltime_key].add_metric(label, buckets = process_calltime_bucket, sum_value = process_calltime_sum)
+                    self._hadoop_hbase_metrics['IPC'][queue_calltime_key].add_metric(label, buckets = queue_calltime_bucket, sum_value = queue_calltime_sum)
+                    self._hadoop_hbase_metrics['IPC'][response_key].add_metric(label, buckets = response_bucket, sum_value = response_sum)
+                    self._hadoop_hbase_metrics['IPC'][request_key].add_metric(label, buckets = request_bucket, sum_value = request_sum)
 
+            if 'FileSystem' in beans[i]['name']:
+                if 'FileSystem' in self._metrics:
+                    label = [self._cluster]
+                    host = beans[i]['tag.Hostname']
+                    label.append(host)
+
+                    hlog_split_time_sum, metahlog_split_time_sum, hlog_split_size_sum, metahlog_split_size_sum = 0.0, 0.0, 0.0, 0.0
+                    hlog_split_time_value, metahlog_split_time_value, hlog_split_size_value, metahlog_split_size_value = [], [], [], []
+                    hlog_split_time_percentile, metahlog_split_time_percentile, hlog_split_size_percentile, metahlog_split_size_percentile = [], [], [], []
+
+                    for metric in self._metrics['FileSystem']:
+                        if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric or 'RangeCount_' in metric:
+                            self._hadoop_hbase_metrics['FileSystem'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                        elif 'MetaHlogSplitTime' in metric:
+                            if '_num_ops' in metric:
+                                metahlog_split_time_count = beans[i][metric]
+                                metahlog_split_time_key = 'MetaHlogSplitTime'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                metahlog_split_time_percentile.append(str(float(per) / 100.0))
+                                metahlog_split_time_value.append(beans[i][metric])
+                                metahlog_split_time_sum += beans[i][metric]
+                        elif 'HlogSplitTime' in metric:
+                            if '_num_ops' in metric:
+                                hlog_split_time_count = beans[i][metric]
+                                hlog_split_time_key = 'HlogSplitTime'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                hlog_split_time_percentile.append(str(float(per) / 100.0))
+                                hlog_split_time_value.append(beans[i][metric])
+                                hlog_split_time_sum += beans[i][metric]   
+                        elif 'MetaHlogSplitSize' in metric:
+                            if '_num_ops' in metric:
+                                metahlog_split_size_count = beans[i][metric]
+                                metahlog_split_size_key = 'MetaHlogSplitSize'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                metahlog_split_size_percentile.append(str(float(per) / 100.0))
+                                metahlog_split_size_value.append(beans[i][metric])
+                                metahlog_split_size_sum += beans[i][metric]                     
+                        elif 'HlogSplitSize' in metric:
+                            if '_num_ops' in metric:
+                                hlog_split_size_count = beans[i][metric]
+                                hlog_split_size_key = 'HlogSplitSize'
+                            else:
+                                per = metric.split("_")[1].split("th")[0]
+                                hlog_split_size_percentile.append(str(float(per) / 100.0))
+                                hlog_split_size_value.append(beans[i][metric])
+                                hlog_split_size_sum += beans[i][metric]                        
+                        else:
+                            self._hadoop_hbase_metrics['FileSystem'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+
+                    hlog_split_time_bucket = zip(hlog_split_time_percentile, hlog_split_time_value)
+                    hlog_split_time_bucket.sort()
+                    hlog_split_time_bucket.append(("+Inf", hlog_split_time_count))
+                    metahlog_split_time_bucket = zip(metahlog_split_time_percentile, metahlog_split_time_value)
+                    metahlog_split_time_bucket.sort()
+                    metahlog_split_time_bucket.append(("+Inf", metahlog_split_time_count))
+                    hlog_split_size_bucket = zip(hlog_split_size_percentile, hlog_split_size_value)
+                    hlog_split_size_bucket.sort()
+                    hlog_split_size_bucket.append(("+Inf", hlog_split_size_count))
+                    metahlog_split_size_bucket = zip(metahlog_split_size_percentile, metahlog_split_size_value)
+                    metahlog_split_size_bucket.sort()
+                    metahlog_split_size_bucket.append(("+Inf", metahlog_split_size_count))                    
+                    
+                    self._hadoop_hbase_metrics['FileSystem'][hlog_split_time_key].add_metric(label, buckets = hlog_split_time_bucket, sum_value = hlog_split_time_sum)
+                    self._hadoop_hbase_metrics['FileSystem'][metahlog_split_time_key].add_metric(label, buckets = metahlog_split_time_bucket, sum_value = metahlog_split_time_sum)
+                    self._hadoop_hbase_metrics['FileSystem'][hlog_split_size_key].add_metric(label, buckets = hlog_split_size_bucket, sum_value = hlog_split_size_sum)
+                    self._hadoop_hbase_metrics['FileSystem'][metahlog_split_size_key].add_metric(label, buckets = metahlog_split_size_bucket, sum_value = metahlog_split_size_sum)
 
 def main():
     try:
         args = utils.parse_args()
         port = int(args.port)
 
-        # REGISTRY.register(NameNodeMetricsCollector(args.cluster))
+        REGISTRY.register(NameNodeMetricsCollector(args.cluster))
         REGISTRY.register(ResourceManagerMetricsCollector(args.cluster))
-        # REGISTRY.register(HBaseMetricsCollector(args.cluster,Config().HDFS_ACTIVE_URL))
+        REGISTRY.register(MapReduceMetricsCollector(args.cluster))
+        REGISTRY.register(DataNodeMetricCollector(args.cluster))
+        REGISTRY.register(JournalNodeMetricCollector(args.cluster))
+        REGISTRY.register(HBaseMetricCollector(args.cluster))
 
         c = Consul(host='10.110.13.216')
-        # Register Service
-        # address = '192.168.0.106'
-        # address = '10.9.11.95'
-        c.agent.service.register('hadoop_python_test2323',
-                                 service_id='consul_python_test2323',
+        c.agent.service.register('hadoop_exporter_nn',
+                                 service_id='hadoop_exporter_nn',
                                  address='10.9.11.95',
                                  port=port,
                                  tags=['hadoop'])
@@ -969,7 +1786,7 @@ def main():
         while True:
             time.sleep(1)
     except KeyboardInterrupt:
-        c.agent.service.deregister(service_id='consul_python_test2323')
+        c.agent.service.deregister(service_id='hadoop_exporter_nn')
         print(" Interrupted")
         exit(0)
 

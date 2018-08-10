@@ -1,0 +1,15 @@
+{
+    "miscInvocationCount": "Number of misc Invocation",
+    "BalancerCluster_num_ops": "Total number of balancer cluster operations",
+    "BalancerCluster_min": "Min of balancer cluster operations",
+    "BalancerCluster_max": "Max of balancer cluster operations",
+    "BalancerCluster_mean": "Mean of balancer cluster operations",
+    "BalancerCluster_25th_percentile": "The 25th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_median": "Median of balancer cluster operations",
+    "BalancerCluster_75th_percentile": "The 75th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_90th_percentile": "The 90th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_95th_percentile": "The 95th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_98th_percentile": "The 98th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_99th_percentile": "The 99th percentile of balancer cluster latency in microseconds",
+    "BalancerCluster_99.9th_percentile": "The 99.9th percentile of balancer cluster latency in microseconds"
+}

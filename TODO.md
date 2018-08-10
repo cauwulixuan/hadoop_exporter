@@ -33,6 +33,13 @@ class SpecificCollector():
 3.类包装器。
 
 ## TODO:
-1.解析yarn相关指标
-2.解析hbase相关指标
-3.解析MapReduce相关指标
+1. 解析yarn相关指标
+2. 解析hbase相关指标
+3. 解析MapReduce相关指标
+
+## TODO:
+1. 更新process_status_exporter, 添加大数据组件的组件状态信息
+2. 更新前端页面, 适配大数据组件的监控展示
+3. 皓轩接口发生变化, 需要获取url信息回传给REST API
+4. hadoop_exporter相关dashboard制作
+5. 已有监控系统的告警规则编写

@@ -1,0 +1,10 @@
+{
+    "RegionServersState": "Regionserver state, 1 for live, 0 for dead",
+    "ActiveMaster": "1 for master, 0 for standby",
+    "masterActiveTime": "The server being active master role for now in milliseconds",
+    "masterStartTime": "The server start time for now in milliseconds",
+    "averageLoad": "Average load",
+    "numRegionServers": "Total number of live regionservers in the server",
+    "numDeadRegionServers": "The number of dead regionservers in the server",
+    "clusterRequests": "Total number of cluster requests"
+}

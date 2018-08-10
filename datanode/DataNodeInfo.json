@@ -1,0 +1,5 @@
+{
+    "ActorState": "1 for RUNNING, 0 for other states",
+    "VolumeInfo": "Volume infomation in each path and in each mode",
+    "XceiverCount": "Total number of datanode Xceivers"
+}
