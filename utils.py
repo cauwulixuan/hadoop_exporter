@@ -121,11 +121,16 @@ def get_file_list(file_path_name):
     '''
     path = os.path.dirname(os.path.abspath(__file__))
     json_path = os.path.join(path, file_path_name)
-    files = os.listdir(json_path)
-    rlt = []
-    for i in range(len(files)):
-        rlt.append(files[i].split(".")[0])
-    return rlt
+    try:
+        files = os.listdir(json_path)
+    except OSError:
+        logger.error("No such file or directory: '%s'" %json_path)
+        return []
+    else:
+        rlt = []
+        for i in range(len(files)):
+            rlt.append(files[i].split(".")[0])
+        return rlt
 
 
 def parse_args():
@@ -209,12 +214,10 @@ def parse_args():
         metavar='port',
         required=False,
         type=int,
-        help='Listen to this port. (default "9130")',
-        default=9130
+        help='Listen to this port. (default "9131")',
+        default=9131
     )
     return parser.parse_args()
-
-
 
 
 def main():

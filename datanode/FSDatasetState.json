@@ -1,0 +1,13 @@
+{
+    "Capacity" : "Current raw capacity of DataNode in bytes",
+    "DfsUsed" : "Current space used by DataNodes for DFS purposes in bytes",
+    "Remaining" : "Current remaining capacity in bytes",
+    "NumFailedVolumes" : "Total number of failed volumes",
+    "LastVolumeFailureDate" : "Last time of volume failures",
+    "EstimatedCapacityLostTotal" : "An estimate of the total capacity lost due to volume failures",
+    "CacheUsed" : "Total number of cache used",
+    "CacheCapacity" : "Current raw capacity of cache in bytes",
+    "NumBlocksCached" : "Total number of blocks cached",
+    "NumBlocksFailedToCache" : "Total number of blocks failed to cache",
+    "NumBlocksFailedToUnCache" : "Total number of blocks failed to uncached"
+}

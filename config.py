@@ -31,7 +31,7 @@ class Config(object):
     JOURNAL_NODE3_URL = "http://10.110.13.163:8480/jmx"
 
     # egrep -i "resourcemanager.resourcemanager.webapp.address" /etc/hadoop/conf/resourcemanager-site.xml
-    YARN_ACTIVE_URL = "http://10.110.13.42:8088/jmx"
+    YARN_ACTIVE_URL = "http://10.110.13.164:8088/jmx"
     YARN_STANDBY_URL = "http://10.110.13.165:8088/jmx"
 
     # egrep -i "mapreduce.jobhistory.webapp.address" /etc/hadoop/conf/mapred-site.xml
