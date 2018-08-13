@@ -48,20 +48,25 @@ class CustomCollector(object):
         yield h
 
 def main():
-    from consul import Consul
-    c = Consul(host='10.110.13.216')
-    # Register Service
-    port = 8002
-    REGISTRY.register(CustomCollector())
-    c.agent.service.register('hadoop_python_test2323',
-                             service_id='consul_python_test2323',
-                             address='10.9.11.95',
-                             port=port,
-                             tags=['hadoop'])
-    start_http_server(port)
-    print("Serving at port: %s" % (port))
-    while True:
-        time.sleep(1)
+    try:
+        from consul import Consul
+        c = Consul(host='10.110.13.216')
+        # Register Service
+        port = 8000
+        REGISTRY.register(CustomCollector())
+        c.agent.service.register('hadoop_python_test111',
+                                 service_id='hadoop_python_test111',
+                                 address='10.9.11.95',
+                                 port=port,
+                                 tags=['hadoop'])
+        start_http_server(port)
+        print("Serving at port: %s" % (port))
+        while True:
+            time.sleep(1)
+    except KeyboardInterrupt:
+        c.agent.service.deregister(service_id='hadoop_python_test111')
+        print(" Interrupted")
+        exit(0)
 
 if __name__ == '__main__':
     main()

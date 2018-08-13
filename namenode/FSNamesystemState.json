@@ -1,9 +1,13 @@
-{
+{    
+    "FsLockQueueLength": "Filesystem lock queue length",
+    "MaxObjects": "Max objects",
+    "BlockDeletionStartTime": "Start time of block deletion",
     "NumLiveDataNodes": "Number of datanodes which are currently live",
     "NumDeadDataNodes": "Number of datanodes which are currently dead",
     "NumDecomLiveDataNodes": "Number of datanodes which have been decommissioned and are now live",
     "NumDecomDeadDataNodes": "Number of datanodes which have been decommissioned and are now dead",
     "NumDecommissioningDataNodes": "Number of datanodes in decommissioning state",
+    "NumStaleDataNodes": "Number of datanodes marked as content stale",
     "VolumeFailuresTotal": "Total number of volume failures across all Datanodes",
     "EstimatedCapacityLostTotal": "An estimate of the total capacity lost due to volume failures",
     "NumStaleStorages": "Number of storages marked as content stale (after NameNode restart/failover before first block report is received)",
