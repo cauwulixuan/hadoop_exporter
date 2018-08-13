@@ -1,0 +1,14 @@
+{
+    "OpenFileDescriptorCount": "Total number of open file descriptor",
+    "MaxFileDescriptorCount": "Total number of max file descriptor",
+    "CommittedVirtualMemorySize": "The size of committed virtual memory in bytes",
+    "TotalSwapSpaceSize": "The size of total swap space in bytes",
+    "FreeSwapSpaceSize": "The size of free swap space in bytes",
+    "ProcessCpuTime": "Total process cpu time in microseconds",
+    "FreePhysicalMemorySize": "The size of free physical memory in bytes",
+    "TotalPhysicalMemorySize": "The size of total physical memory in bytes",
+    "SystemCpuLoad": "Average of system CPU load",
+    "ProcessCpuLoad": "Average of process CPU load",
+    "SystemLoadAverage": "Average of system load",
+    "AvailableProcessors": "Total number of available processors",
+}

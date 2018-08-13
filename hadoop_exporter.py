@@ -138,6 +138,14 @@ def common_metrics_info(cluster, beans, service):
                                                                   descriptions,
                                                                   labels=label)
 
+        for metric in tmp_metrics['OperatingSystem']:
+            label = ["cluster"]
+            snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+            common_metrics['OperatingSystem'][metric] = GaugeMetricFamily(_prefix + snake_case, 
+                                                                          tmp_metrics['OperatingSystem'][metric],
+                                                                          labels=label)
+
+
         num_rpc_flag, avg_rpc_flag = 1, 1
         for metric in tmp_metrics["RpcActivity"]:
             '''
@@ -309,6 +317,12 @@ def common_metrics_info(cluster, beans, service):
                     common_metrics['JvmMetrics'][key].add_metric(label,
                                                                  beans[i][metric] if metric in beans[i] else 0)
 
+            if 'OperatingSystem' in beans[i]['name']:
+                for metric in tmp_metrics['OperatingSystem']:
+                    label = [_cluster]
+                    common_metrics['OperatingSystem'][metric].add_metric(label,
+                                                                         beans[i][metric] if metric in beans[i] else 0)
+                    
             if 'RpcActivity' in beans[i]['name']:
                 rpc_tag = beans[i]['tag.port']
                 for metric in tmp_metrics['RpcActivity']:
@@ -1660,14 +1674,13 @@ class HBaseMetricCollector(MetricCol):
                                 request_sum += beans[i][metric]
                         elif 'exceptions' in metric:
                             key = 'exceptions'
+                            new_label = label
                             if 'exceptions' == metric:
-                                new_label = label
-                                new_label.append("sum")
+                                type = "sum"
                             else:
-                                new_label = label
                                 type = metric.split(".")[1]
-                                new_label.append(type)
-                            self._hadoop_hbase_metrics['IPC'][key].add_metric(new_label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+                            self._hadoop_hbase_metrics['IPC'][key].add_metric(new_label + [type],
+                                                                              beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                         else:
                             self._hadoop_hbase_metrics['IPC'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
 
