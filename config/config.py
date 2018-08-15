@@ -17,7 +17,7 @@ class Config(object):
 
     # a REST API to get all components info.
     # http://10.110.13.163:8080/api/v1/clusters/<cluster_name>/services/HDFS/components/DATANODE
-    # 
+    # consul-template -template="test.tpl:test.conf" -once
 
     # egrep -i -A 1 "namenode.http-address" /etc/hadoop/conf/hdfs-site.xml
     HDFS_ACTIVE_URL = "http://10.110.13.165:50070/jmx"
