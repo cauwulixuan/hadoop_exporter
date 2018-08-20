@@ -124,8 +124,8 @@ def get_ambari_url():
     Get available ambari url from consul using consul-template
     @return a string of avaliable ambari url or None if no avaliable url.
     '''
-    config = get_config_file()
-    # config = get_config_from_file()
+    # config = get_config_file()
+    config = get_config_from_file()
     if 'ip' in config.keys():
         if 'proxy_port' in config.keys():
             avaliable_url = "http://{}:{}".format(config['ip'][0], config['proxy_port'])
