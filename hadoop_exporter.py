@@ -12,7 +12,7 @@ import utils
 from utils import get_module_logger
 from consul import Consul
 
-from config import Config
+from config.config import Config
 
 logger = get_module_logger(__name__)
 
@@ -255,6 +255,12 @@ def common_metrics_info(cluster, beans, service):
                 common_metrics['MetricsSystem'][metric] = GaugeMetricFamily(_prefix  + 'metrics_' + snake_case,
                                                                             tmp_metrics['MetricsSystem'][metric],
                                                                             labels = label)
+
+        for metric in tmp_metrics['Runtime']:
+            snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
+            common_metrics['Runtime'][metric] = GaugeMetricFamily(_prefix + snake_case + "_seconds", 
+                                                                  tmp_metrics['Runtime'][metric], 
+                                                                  labels = label)
         return common_metrics
 
     def get_metrics():
@@ -395,6 +401,13 @@ def common_metrics_info(cluster, beans, service):
                         common_metrics['MetricsSystem'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
                     else:
                         common_metrics['MetricsSystem'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+
+
+            if 'Runtime' in beans[i]['name']:
+                for metric in tmp_metrics['Runtime']:
+                    label = [_cluster]
+                    common_metrics['Runtime'][metric].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
+
 
         return common_metrics
 
@@ -692,7 +705,6 @@ class NameNodeMetricsCollector(MetricCol):
                         key = "cache"
                         label = [self._cluster, metric.split('Cache')[1]]
                         self._hadoop_namenode_metrics['RetryCache'][key].add_metric(label, beans[i][metric] if metric in beans[i] and beans[i][metric] else 0)
-
 
 class ResourceManagerMetricsCollector(MetricCol):
 
@@ -1299,7 +1311,7 @@ class HBaseMetricCollector(MetricCol):
                     name = 'dead_region'
                 else:
                     pass
-                self._hadoop_hbase_metrics['Server'][metric] = GaugeMetricFamily(self._prefix + '_server' + name,
+                self._hadoop_hbase_metrics['Server'][metric] = GaugeMetricFamily(self._prefix + 'server_' + name,
                                                                                  self._metrics['Server'][metric],
                                                                                  labels=label)
         if 'Balancer' in self._metrics:
@@ -1361,7 +1373,7 @@ class HBaseMetricCollector(MetricCol):
                     else:
                         continue
                 else:
-                    name = 'assignmentmanger' + snake_case
+                    name = 'assignmentmanger_' + snake_case
                     self._hadoop_hbase_metrics['AssignmentManger'][metric] = GaugeMetricFamily(self._prefix + name,
                                                                                                self._metrics['AssignmentManger'][metric],
                                                                                                labels=label)
@@ -1371,7 +1383,7 @@ class HBaseMetricCollector(MetricCol):
                 label = ["cluster", "host"]
                 snake_case = re.sub('([a-z0-9])([A-Z])', r'\1_\2', metric).lower()
                 if '_min' in metric or '_max' in metric or '_mean' in metric or 'median' in metric:
-                    name = 'ipc' + snake_case
+                    name = 'ipc_' + snake_case
                     self._hadoop_hbase_metrics['IPC'][metric] = GaugeMetricFamily(self._prefix + name,
                                                                                   self._metrics['IPC'][metric],
                                                                                   labels=label)
@@ -1442,7 +1454,7 @@ class HBaseMetricCollector(MetricCol):
                     else:
                         continue
                 else:
-                    name = 'ipc' + snake_case
+                    name = 'ipc_' + snake_case
                     self._hadoop_hbase_metrics['IPC'][metric] = GaugeMetricFamily(self._prefix + name,
                                                                                   self._metrics['IPC'][metric],
                                                                                   labels=label)
@@ -1523,8 +1535,7 @@ class HBaseMetricCollector(MetricCol):
                                 for j in range(len(live_region_list)):
                                     live_label = label
                                     server = live_region_list[j].split(',')[0]
-                                    live_label.append(server)
-                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(live_label, 1.0)
+                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(live_label + [server], 1.0)
                             else:
                                 pass
                             if 'tag.deadRegionServers' in beans[i] and beans[i]['tag.deadRegionServers']:
@@ -1533,8 +1544,7 @@ class HBaseMetricCollector(MetricCol):
                                 for j in range(len(dead_region_list)):
                                     dead_label = label
                                     server = dead_region_list[j].split(',')[0]
-                                    dead_label.append(server)
-                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(dead_label, 0.0)
+                                    self._hadoop_hbase_metrics['Server'][metric].add_metric(dead_label + [server], 0.0)
                             else:
                                 pass
                         elif 'ActiveMaster' in metric:
