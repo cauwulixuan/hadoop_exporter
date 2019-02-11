@@ -1,0 +1,226 @@
+Polling 127.0.0.1. Serving at port: 9131
+=================START===================
+datanode_url = http://indata-10-10-6-11.indata.com:1022/jmx, start to register
+datanode
+##########  _names_to_collectors ################
+{u'hadoop_hdfs_datanode_free_physical_memory_size': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_mem_committed_mebibytes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_log_level_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_gc_count': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_available_processors': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_num_active_sources': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_committed_virtual_memory_size': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_mem_used_mebibytes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_received_bytes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_ugi_renewal_failures_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_sink_instance_dropped': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_open_fds': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_uptime_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_process_up': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_resident_memory_bytes': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_metricssystem_sink_instance_qsize': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_call_queue_length': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_authorization_successes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_virtual_memory_bytes': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_rpc_authentication_successes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_operations_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_free_swap_space_size': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_start_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_cpu_seconds_total': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_jvm_threads_state_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_start_time_seconds': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_metricssystem_dropped_pub_all': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'process_max_fds': <prometheus_client.process_collector.ProcessCollector object at 0x278a410>, u'hadoop_hdfs_datanode_rpc_sent_bytes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_num_active_sinks': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_process_cpu_time': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_method_called_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_num_all_sinks': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_max_file_descriptor_count': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_authentication_failures': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_detailed_method_called_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_metricssystem_num_all_sources': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_num_open_connections': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'python_info': <prometheus_client.platform_collector.PlatformCollector object at 0x27d0150>, u'hadoop_hdfs_datanode_system_cpu_load': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_slow_calls': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_authorization_failures': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_system_load_average': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_rpc_client_backoff': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_gc_total_extra_sleep_time': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_ugi_renewal_failures': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_ugi_method_called_total': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_total_swap_space_size': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_total_physical_memory_size': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_process_cpu_load': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_open_file_descriptor_count': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_mem_max_mebibytes': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>, u'hadoop_hdfs_datanode_jvm_gc_time_milliseconds': <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>}
+
+
+############# _collector_to_names #################
+{<prometheus_client.process_collector.ProcessCollector object at 0x278a410>: [u'process_virtual_memory_bytes', u'process_resident_memory_bytes', u'process_start_time_seconds', u'process_cpu_seconds_total', u'process_open_fds', u'process_max_fds'], <prometheus_client.platform_collector.PlatformCollector object at 0x27d0150>: [u'python_info'], <cmd.hdfs_datanode.DataNodeMetricCollector object at 0x2c84fd0>: [u'hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total', u'hadoop_hdfs_datanode_jvm_gc_total_extra_sleep_time', u'hadoop_hdfs_datanode_jvm_gc_count', u'hadoop_hdfs_datanode_jvm_mem_max_mebibytes', u'hadoop_hdfs_datanode_jvm_mem_used_mebibytes', u'hadoop_hdfs_datanode_jvm_gc_time_milliseconds', u'hadoop_hdfs_datanode_jvm_threads_state_total', u'hadoop_hdfs_datanode_jvm_log_level_total', u'hadoop_hdfs_datanode_jvm_mem_committed_mebibytes', u'hadoop_hdfs_datanode_metricssystem_dropped_pub_all', u'hadoop_hdfs_datanode_metricssystem_num_all_sinks', u'hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds', u'hadoop_hdfs_datanode_metricssystem_operations_total', u'hadoop_hdfs_datanode_metricssystem_sink_instance_qsize', u'hadoop_hdfs_datanode_metricssystem_num_active_sources', u'hadoop_hdfs_datanode_metricssystem_sink_instance_dropped', u'hadoop_hdfs_datanode_metricssystem_num_all_sources', u'hadoop_hdfs_datanode_metricssystem_num_active_sinks', u'hadoop_hdfs_datanode_open_file_descriptor_count', u'hadoop_hdfs_datanode_max_file_descriptor_count', u'hadoop_hdfs_datanode_system_load_average', u'hadoop_hdfs_datanode_free_swap_space_size', u'hadoop_hdfs_datanode_available_processors', u'hadoop_hdfs_datanode_process_cpu_load', u'hadoop_hdfs_datanode_system_cpu_load', u'hadoop_hdfs_datanode_process_cpu_time', u'hadoop_hdfs_datanode_committed_virtual_memory_size', u'hadoop_hdfs_datanode_total_physical_memory_size', u'hadoop_hdfs_datanode_total_swap_space_size', u'hadoop_hdfs_datanode_free_physical_memory_size', u'hadoop_hdfs_datanode_rpc_num_open_connections', u'hadoop_hdfs_datanode_rpc_authentication_successes', u'hadoop_hdfs_datanode_rpc_authorization_failures', u'hadoop_hdfs_datanode_rpc_slow_calls', u'hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds', u'hadoop_hdfs_datanode_rpc_client_backoff', u'hadoop_hdfs_datanode_rpc_authentication_failures', u'hadoop_hdfs_datanode_rpc_received_bytes', u'hadoop_hdfs_datanode_rpc_authorization_successes', u'hadoop_hdfs_datanode_rpc_call_queue_length', u'hadoop_hdfs_datanode_rpc_sent_bytes', u'hadoop_hdfs_datanode_rpc_method_called_total', u'hadoop_hdfs_datanode_rpc_detailed_method_called_total', u'hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds', u'hadoop_hdfs_datanode_uptime_milliseconds', u'hadoop_hdfs_datanode_process_up', u'hadoop_hdfs_datanode_start_time_milliseconds', u'hadoop_hdfs_datanode_ugi_method_called_total', u'hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds', u'hadoop_hdfs_datanode_ugi_renewal_failures_total', u'hadoop_hdfs_datanode_ugi_renewal_failures']}
+datanode
+# HELP process_virtual_memory_bytes Virtual memory size in bytes.
+# TYPE process_virtual_memory_bytes gauge
+process_virtual_memory_bytes 313692160.0
+# HELP process_resident_memory_bytes Resident memory size in bytes.
+# TYPE process_resident_memory_bytes gauge
+process_resident_memory_bytes 20451328.0
+# HELP process_start_time_seconds Start time of the process since unix epoch in seconds.
+# TYPE process_start_time_seconds gauge
+process_start_time_seconds 1537358990.25
+# HELP process_cpu_seconds_total Total user and system CPU time spent in seconds.
+# TYPE process_cpu_seconds_total counter
+process_cpu_seconds_total 0.24
+# HELP process_open_fds Number of open file descriptors.
+# TYPE process_open_fds gauge
+process_open_fds 20.0
+# HELP process_max_fds Maximum number of open file descriptors.
+# TYPE process_max_fds gauge
+process_max_fds 65536.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="2",minor="7",patchlevel="5",version="2.7.5"} 1.0
+# HELP hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total Number of times that the GC threshold is exceeded.
+# TYPE hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total gauge
+hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total{cluster="xxx",type="Info"} 461.0
+hadoop_hdfs_datanode_jvm_gc_exceeded_threshold_total{cluster="xxx",type="Warn"} 2.0
+# HELP hadoop_hdfs_datanode_jvm_gc_total_extra_sleep_time Total GC extra sleep time in msec.
+# TYPE hadoop_hdfs_datanode_jvm_gc_total_extra_sleep_time gauge
+hadoop_hdfs_datanode_jvm_gc_total_extra_sleep_time{cluster="xxx"} 4910184.0
+# HELP hadoop_hdfs_datanode_jvm_gc_count GC count of each type GC.
+# TYPE hadoop_hdfs_datanode_jvm_gc_count gauge
+hadoop_hdfs_datanode_jvm_gc_count{cluster="xxx",type="ParNew"} 11436.0
+hadoop_hdfs_datanode_jvm_gc_count{cluster="xxx",type="ConcurrentMarkSweep"} 2.0
+hadoop_hdfs_datanode_jvm_gc_count{cluster="xxx",type="total"} 11438.0
+# HELP hadoop_hdfs_datanode_jvm_mem_max_mebibytes Current max memory in mebibytes.
+# TYPE hadoop_hdfs_datanode_jvm_mem_max_mebibytes gauge
+hadoop_hdfs_datanode_jvm_mem_max_mebibytes{cluster="xxx",mode="NonHeap"} -1.0
+hadoop_hdfs_datanode_jvm_mem_max_mebibytes{cluster="xxx",mode="max"} 103020.0
+hadoop_hdfs_datanode_jvm_mem_max_mebibytes{cluster="xxx",mode="Heap"} 103020.0
+# HELP hadoop_hdfs_datanode_jvm_mem_used_mebibytes Current memory used in mebibytes.
+# TYPE hadoop_hdfs_datanode_jvm_mem_used_mebibytes gauge
+hadoop_hdfs_datanode_jvm_mem_used_mebibytes{cluster="xxx",mode="NonHeap"} 77.630424
+hadoop_hdfs_datanode_jvm_mem_used_mebibytes{cluster="xxx",mode="Heap"} 9276.163
+# HELP hadoop_hdfs_datanode_jvm_gc_time_milliseconds Each type GC time in milliseconds.
+# TYPE hadoop_hdfs_datanode_jvm_gc_time_milliseconds gauge
+hadoop_hdfs_datanode_jvm_gc_time_milliseconds{cluster="xxx",type="ConcurrentMarkSweep"} 628.0
+hadoop_hdfs_datanode_jvm_gc_time_milliseconds{cluster="xxx",type="ParNew"} 7651542.0
+hadoop_hdfs_datanode_jvm_gc_time_milliseconds{cluster="xxx",type="total"} 7652170.0
+# HELP hadoop_hdfs_datanode_jvm_threads_state_total Current number of different threads.
+# TYPE hadoop_hdfs_datanode_jvm_threads_state_total gauge
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="Waiting"} 35.0
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="Runnable"} 180.0
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="TimedWaiting"} 49.0
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="New"} 0.0
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="Blocked"} 0.0
+hadoop_hdfs_datanode_jvm_threads_state_total{cluster="xxx",state="Terminated"} 0.0
+# HELP hadoop_hdfs_datanode_jvm_log_level_total Total number of each level logs.
+# TYPE hadoop_hdfs_datanode_jvm_log_level_total gauge
+hadoop_hdfs_datanode_jvm_log_level_total{cluster="xxx",level="Warn"} 535145.0
+hadoop_hdfs_datanode_jvm_log_level_total{cluster="xxx",level="Error"} 1888.0
+hadoop_hdfs_datanode_jvm_log_level_total{cluster="xxx",level="Info"} 3666892.0
+hadoop_hdfs_datanode_jvm_log_level_total{cluster="xxx",level="Fatal"} 0.0
+# HELP hadoop_hdfs_datanode_jvm_mem_committed_mebibytes Current memory committed in mebibytes.
+# TYPE hadoop_hdfs_datanode_jvm_mem_committed_mebibytes gauge
+hadoop_hdfs_datanode_jvm_mem_committed_mebibytes{cluster="xxx",mode="Heap"} 103020.0
+hadoop_hdfs_datanode_jvm_mem_committed_mebibytes{cluster="xxx",mode="NonHeap"} 78.98047
+# HELP hadoop_hdfs_datanode_metricssystem_dropped_pub_all Total number of dropped publishes.
+# TYPE hadoop_hdfs_datanode_metricssystem_dropped_pub_all gauge
+hadoop_hdfs_datanode_metricssystem_dropped_pub_all{cluster="xxx"} 1.0
+# HELP hadoop_hdfs_datanode_metricssystem_num_all_sinks Total number of sinks (BUT usually less than NumActiveSinks, see HADOOP-9946).
+# TYPE hadoop_hdfs_datanode_metricssystem_num_all_sinks gauge
+hadoop_hdfs_datanode_metricssystem_num_all_sinks{cluster="xxx"} 0.0
+# HELP hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds Average turn around time of the operations in milliseconds.
+# TYPE hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds gauge
+hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds{cluster="xxx",oper="Sink_instance"} 0.0
+hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds{cluster="xxx",oper="Snapshot"} 0.0
+hadoop_hdfs_datanode_metricssystem_method_avg_time_milliseconds{cluster="xxx",oper="Publish"} 0.0
+# HELP hadoop_hdfs_datanode_metricssystem_operations_total Total number of operations
+# TYPE hadoop_hdfs_datanode_metricssystem_operations_total gauge
+hadoop_hdfs_datanode_metricssystem_operations_total{cluster="xxx",oper="Sink_instance"} 0.0
+hadoop_hdfs_datanode_metricssystem_operations_total{cluster="xxx",oper="Publish"} 34891.0
+hadoop_hdfs_datanode_metricssystem_operations_total{cluster="xxx",oper="Snapshot"} 662929.0
+# HELP hadoop_hdfs_datanode_metricssystem_sink_instance_qsize Current queue length of sink operations (BUT always set to 0 because nothing to increment this metrics, see HADOOP-9941).
+# TYPE hadoop_hdfs_datanode_metricssystem_sink_instance_qsize gauge
+hadoop_hdfs_datanode_metricssystem_sink_instance_qsize{cluster="xxx"} 0.0
+# HELP hadoop_hdfs_datanode_metricssystem_num_active_sources Current number of active metrics sources.
+# TYPE hadoop_hdfs_datanode_metricssystem_num_active_sources gauge
+hadoop_hdfs_datanode_metricssystem_num_active_sources{cluster="xxx"} 18.0
+# HELP hadoop_hdfs_datanode_metricssystem_sink_instance_dropped Total number of dropped sink operations for the instance.
+# TYPE hadoop_hdfs_datanode_metricssystem_sink_instance_dropped gauge
+hadoop_hdfs_datanode_metricssystem_sink_instance_dropped{cluster="xxx"} 0.0
+# HELP hadoop_hdfs_datanode_metricssystem_num_all_sources Total number of metrics sources.
+# TYPE hadoop_hdfs_datanode_metricssystem_num_all_sources gauge
+hadoop_hdfs_datanode_metricssystem_num_all_sources{cluster="xxx"} 18.0
+# HELP hadoop_hdfs_datanode_metricssystem_num_active_sinks Current number of active sinks.
+# TYPE hadoop_hdfs_datanode_metricssystem_num_active_sinks gauge
+hadoop_hdfs_datanode_metricssystem_num_active_sinks{cluster="xxx"} 1.0
+# HELP hadoop_hdfs_datanode_open_file_descriptor_count Total number of open file descriptor
+# TYPE hadoop_hdfs_datanode_open_file_descriptor_count gauge
+hadoop_hdfs_datanode_open_file_descriptor_count{cluster="xxx"} 1444.0
+# HELP hadoop_hdfs_datanode_max_file_descriptor_count Total number of max file descriptor
+# TYPE hadoop_hdfs_datanode_max_file_descriptor_count gauge
+hadoop_hdfs_datanode_max_file_descriptor_count{cluster="xxx"} 128000.0
+# HELP hadoop_hdfs_datanode_system_load_average Average of system load
+# TYPE hadoop_hdfs_datanode_system_load_average gauge
+hadoop_hdfs_datanode_system_load_average{cluster="xxx"} 1.91
+# HELP hadoop_hdfs_datanode_free_swap_space_size The size of free swap space in bytes
+# TYPE hadoop_hdfs_datanode_free_swap_space_size gauge
+hadoop_hdfs_datanode_free_swap_space_size{cluster="xxx"} 200704.0
+# HELP hadoop_hdfs_datanode_available_processors Total number of available processors
+# TYPE hadoop_hdfs_datanode_available_processors gauge
+hadoop_hdfs_datanode_available_processors{cluster="xxx"} 40.0
+# HELP hadoop_hdfs_datanode_process_cpu_load Average of process CPU load
+# TYPE hadoop_hdfs_datanode_process_cpu_load gauge
+hadoop_hdfs_datanode_process_cpu_load{cluster="xxx"} 0.02336448598130841
+# HELP hadoop_hdfs_datanode_system_cpu_load Average of system CPU load
+# TYPE hadoop_hdfs_datanode_system_cpu_load gauge
+hadoop_hdfs_datanode_system_cpu_load{cluster="xxx"} 0.5586854460093896
+# HELP hadoop_hdfs_datanode_process_cpu_time Total process cpu time in microseconds
+# TYPE hadoop_hdfs_datanode_process_cpu_time gauge
+hadoop_hdfs_datanode_process_cpu_time{cluster="xxx"} 76555830000000.0
+# HELP hadoop_hdfs_datanode_committed_virtual_memory_size The size of committed virtual memory in bytes
+# TYPE hadoop_hdfs_datanode_committed_virtual_memory_size gauge
+hadoop_hdfs_datanode_committed_virtual_memory_size{cluster="xxx"} 113909104640.0
+# HELP hadoop_hdfs_datanode_total_physical_memory_size The size of total physical memory in bytes
+# TYPE hadoop_hdfs_datanode_total_physical_memory_size gauge
+hadoop_hdfs_datanode_total_physical_memory_size{cluster="xxx"} 540948021248.0
+# HELP hadoop_hdfs_datanode_total_swap_space_size The size of total swap space in bytes
+# TYPE hadoop_hdfs_datanode_total_swap_space_size gauge
+hadoop_hdfs_datanode_total_swap_space_size{cluster="xxx"} 4294963200.0
+# HELP hadoop_hdfs_datanode_free_physical_memory_size The size of free physical memory in bytes
+# TYPE hadoop_hdfs_datanode_free_physical_memory_size gauge
+hadoop_hdfs_datanode_free_physical_memory_size{cluster="xxx"} 138534924288.0
+# HELP hadoop_hdfs_datanode_rpc_num_open_connections Current number of open connections
+# TYPE hadoop_hdfs_datanode_rpc_num_open_connections gauge
+hadoop_hdfs_datanode_rpc_num_open_connections{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_authentication_successes Total number of authentication successes
+# TYPE hadoop_hdfs_datanode_rpc_authentication_successes gauge
+hadoop_hdfs_datanode_rpc_authentication_successes{cluster="xxx",tag="8010"} 5046.0
+# HELP hadoop_hdfs_datanode_rpc_authorization_failures Total number of authorization failures
+# TYPE hadoop_hdfs_datanode_rpc_authorization_failures gauge
+hadoop_hdfs_datanode_rpc_authorization_failures{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_slow_calls Total number of RPC slow calls
+# TYPE hadoop_hdfs_datanode_rpc_slow_calls gauge
+hadoop_hdfs_datanode_rpc_slow_calls{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds Average turn around time of the method in milliseconds.
+# TYPE hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds gauge
+hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds{cluster="xxx",method="RpcProcessingTime",tag="8010"} 5.5
+hadoop_hdfs_datanode_rpc_method_avg_time_milliseconds{cluster="xxx",method="RpcQueueTime",tag="8010"} 1.0
+# HELP hadoop_hdfs_datanode_rpc_client_backoff Total number of RPC client back off
+# TYPE hadoop_hdfs_datanode_rpc_client_backoff gauge
+hadoop_hdfs_datanode_rpc_client_backoff{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_authentication_failures Total number of authentication failures
+# TYPE hadoop_hdfs_datanode_rpc_authentication_failures gauge
+hadoop_hdfs_datanode_rpc_authentication_failures{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_received_bytes Total number of received bytes
+# TYPE hadoop_hdfs_datanode_rpc_received_bytes gauge
+hadoop_hdfs_datanode_rpc_received_bytes{cluster="xxx",tag="8010"} 3992639.0
+# HELP hadoop_hdfs_datanode_rpc_authorization_successes Total number of authorization successes
+# TYPE hadoop_hdfs_datanode_rpc_authorization_successes gauge
+hadoop_hdfs_datanode_rpc_authorization_successes{cluster="xxx",tag="8010"} 5046.0
+# HELP hadoop_hdfs_datanode_rpc_call_queue_length Current length of the call queue
+# TYPE hadoop_hdfs_datanode_rpc_call_queue_length gauge
+hadoop_hdfs_datanode_rpc_call_queue_length{cluster="xxx",tag="8010"} 0.0
+# HELP hadoop_hdfs_datanode_rpc_sent_bytes Total number of sent bytes
+# TYPE hadoop_hdfs_datanode_rpc_sent_bytes gauge
+hadoop_hdfs_datanode_rpc_sent_bytes{cluster="xxx",tag="8010"} 1691583.0
+# HELP hadoop_hdfs_datanode_rpc_method_called_total Total number of the times the method is called.
+# TYPE hadoop_hdfs_datanode_rpc_method_called_total gauge
+hadoop_hdfs_datanode_rpc_method_called_total{cluster="xxx",method="RpcProcessingTime",tag="8010"} 5146.0
+hadoop_hdfs_datanode_rpc_method_called_total{cluster="xxx",method="RpcQueueTime",tag="8010"} 5146.0
+# HELP hadoop_hdfs_datanode_rpc_detailed_method_called_total Total number of the times the method is called
+# TYPE hadoop_hdfs_datanode_rpc_detailed_method_called_total gauge
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="GetReplicaVisibleLength",tag="8010"} 4936.0
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="ReplicaNotFoundException",tag="8010"} 29.0
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="RecoveryInProgressException",tag="8010"} 1.0
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="InitReplicaRecovery",tag="8010"} 92.0
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="UpdateReplicaUnderRecovery",tag="8010"} 86.0
+hadoop_hdfs_datanode_rpc_detailed_method_called_total{cluster="xxx",method="IOException",tag="8010"} 2.0
+# HELP hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds Average turn around time of the method in milliseconds
+# TYPE hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds gauge
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="InitReplicaRecovery",tag="8010"} 0.0
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="UpdateReplicaUnderRecovery",tag="8010"} 2.0
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="GetReplicaVisibleLength",tag="8010"} 5.5
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="IOException",tag="8010"} 2.0
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="ReplicaNotFoundException",tag="8010"} 3.0
+hadoop_hdfs_datanode_rpc_detailed_method_avg_time_milliseconds{cluster="xxx",method="RecoveryInProgressException",tag="8010"} 1.0
+# HELP hadoop_hdfs_datanode_uptime_milliseconds components uptime in milliseconds
+# TYPE hadoop_hdfs_datanode_uptime_milliseconds gauge
+hadoop_hdfs_datanode_uptime_milliseconds{cluster="xxx",host="indata-10-10-6-11.indata.com"} 348923724.0
+# HELP hadoop_hdfs_datanode_process_up hdfs datanode process state, 1 for UP, 0 for DOWN
+# TYPE hadoop_hdfs_datanode_process_up gauge
+hadoop_hdfs_datanode_process_up{cluster="xxx"} 1.0
+# HELP hadoop_hdfs_datanode_start_time_milliseconds components start time in milliseconds
+# TYPE hadoop_hdfs_datanode_start_time_milliseconds gauge
+hadoop_hdfs_datanode_start_time_milliseconds{cluster="xxx",host="indata-10-10-6-11.indata.com"} 1537010067431.0
+# HELP hadoop_hdfs_datanode_ugi_method_called_total Total number of the times the method is called.
+# TYPE hadoop_hdfs_datanode_ugi_method_called_total gauge
+hadoop_hdfs_datanode_ugi_method_called_total{cluster="xxx",method="Login",state="Failure"} 0.0
+hadoop_hdfs_datanode_ugi_method_called_total{cluster="xxx",method="Login",state="Success"} 4.0
+hadoop_hdfs_datanode_ugi_method_called_total{cluster="xxx",method="GetGroups"} 0.0
+# HELP hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds Average turn around time of the method in milliseconds.
+# TYPE hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds gauge
+hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds{cluster="xxx",method="Login",state="Success"} 13.0
+hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds{cluster="xxx",method="GetGroups"} 0.0
+hadoop_hdfs_datanode_ugi_method_avg_time_milliseconds{cluster="xxx",method="Login",state="Failure"} 0.0
+# HELP hadoop_hdfs_datanode_ugi_renewal_failures_total Total number of renewal failures.
+# TYPE hadoop_hdfs_datanode_ugi_renewal_failures_total gauge
+hadoop_hdfs_datanode_ugi_renewal_failures_total{cluster="xxx"} 0.0
+# HELP hadoop_hdfs_datanode_ugi_renewal_failures Current number of renewal failures.
+# TYPE hadoop_hdfs_datanode_ugi_renewal_failures gauge
+hadoop_hdfs_datanode_ugi_renewal_failures{cluster="xxx"} 0.0
+
+=================END===================
+=================START===================
+datanode_url = http://indata-10-10-6-11.indata.com:1022/jmx, start to deregister

@@ -4,7 +4,7 @@
     "RpcQueueTimeNumOps": "Total number of RPC calls",
     "RpcQueueTimeAvgTime": "Average queue time in milliseconds",
     "RpcProcessingTimeNumOps": "Total number of RPC calls (same to RpcQueueTimeNumOps)",
-    "RpcProcessingAvgTime": "Average Processing time in milliseconds",
+    "RpcProcessingTimeAvgTime": "Average Processing time in milliseconds",
     "RpcAuthenticationFailures": "Total number of authentication failures",
     "RpcAuthenticationSuccesses": "Total number of authentication successes",
     "RpcAuthorizationFailures": "Total number of authorization failures",

@@ -1,0 +1,19 @@
+{
+    "ContainersLaunched": "Description of the metric",
+    "ContainersCompleted": "Description of the metric",
+    "ContainersFailed": "Description of the metric",
+    "ContainersKilled": "Description of the metric",
+    "ContainersIniting": "Description of the metric",
+    "ContainersRunning": "Description of the metric",
+    "AllocatedGB": "Description of the metric",
+    "AllocatedContainers": "Description of the metric",
+    "AvailableGB": "Description of the metric",
+    "AllocatedVCores": "Description of the metric",
+    "AvailableVCores": "Description of the metric",
+    "ContainerLaunchDurationNumOps": "Description of the metric",
+    "ContainerLaunchDurationAvgTime": "Description of the metric",
+    "BadLocalDirs": "Description of the metric",
+    "BadLogDirs": "Description of the metric",
+    "GoodLocalDirsDiskUtilizationPerc": "Description of the metric",
+    "GoodLogDirsDiskUtilizationPerc": "Description of the metric"
+}

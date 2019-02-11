@@ -1,0 +1,6 @@
+{
+    "ShuffleOutputBytes": "Description of the metric",
+    "ShuffleOutputsFailed": "Description of the metric",
+    "ShuffleOutputsOK": "Description of the metric",
+    "ShuffleConnections": "Description of the metric"
+}

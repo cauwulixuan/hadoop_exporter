@@ -38,6 +38,11 @@ class Config(object):
     YARN_ACTIVE_URL = "http://10.110.13.164:8088/jmx"
     YARN_STANDBY_URL = "http://10.110.13.165:8088/jmx"
 
+    NodeManager_URL1 = "http://10.110.13.163:8042/jmx"
+    NodeManager_URL2 = "http://10.110.13.164:8042/jmx"
+    NodeManager_URL3 = "http://10.110.13.165:8042/jmx"
+
+
     # egrep -i "mapreduce.jobhistory.webapp.address" /etc/hadoop/conf/mapred-site.xml
     MAPREDUCE2_URL = "http://10.110.13.165:19888/jmx"
 
@@ -45,6 +50,12 @@ class Config(object):
     HBASE_ACTIVE_URL = "http://10.110.13.164:16010/jmx"
     HBASE_STANDBY_URL = "http://10.110.13.165:16010/jmx"
 
-    # egrep -i "hiveserver2.sink.timeline.port" /usr/hdp/2.6.1.0-129/hive2/conf/conf.server/hadoop-metrics2-hiveserver2.properties
-    HIVE_URL = "http://10.110.13.42:6188/jmx"
+    RegionServer_URL1 = "http://10.110.13.163:60030/jmx"
+    RegionServer_URL2 = "http://10.110.13.164:60030/jmx"
+    RegionServer_URL3 = "http://10.110.13.165:60030/jmx"
+    
+
+
+    # egrep -i "hive.server2.webui.port" /usr/hdp/2.6.1.0-129/hive2/conf/hive-site.xml
+    HIVE_URL = "http://10.10.6.10:10502/jmx"
     

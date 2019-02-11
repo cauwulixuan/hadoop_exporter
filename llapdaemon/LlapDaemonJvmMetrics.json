@@ -1,0 +1,10 @@
+{
+    "LlapDaemonDirectBufferCount": "Description of the metric",
+    "LlapDaemonDirectBufferTotalCapacity": "Description of the metric",
+    "LlapDaemonDirectBufferMemoryUsed": "Description of the metric",
+    "LlapDaemonMappedBufferCount": "Description of the metric",
+    "LlapDaemonMappedBufferTotalCapacity": "Description of the metric",
+    "LlapDaemonMappedBufferMemoryUsed": "Description of the metric",
+    "LlapDaemonOpenFileDescriptorCount": "Description of the metric",
+    "LlapDaemonMaxFileDescriptorCount": "Description of the metric"
+}

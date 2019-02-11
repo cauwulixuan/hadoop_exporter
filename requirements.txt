@@ -1,4 +1,4 @@
 requests
 prometheus_client
 python-consul
-yaml
+pyyaml

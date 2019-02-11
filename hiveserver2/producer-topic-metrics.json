@@ -1,0 +1,7 @@
+{
+    "record-retry-rate": "Description of the metric",
+    "record-send-rate": "Description of the metric",
+    "compression-rate": "Description of the metric",
+    "byte-rate": "Description of the metric",
+    "record-error-rate": "Description of the metric"
+}

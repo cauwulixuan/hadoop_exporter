@@ -12,6 +12,8 @@
     "ThreadsWaiting": "Current number of WAITING threads.",
     "ThreadsTimedWaiting": "Current number of TIMED_WAITING threads.",
     "ThreadsTerminated": "Current number of TERMINATED threads.",
+    "GcCount": "Total number of Gc count",    
+    "GcTimeMillis": "Total GC time in msec.",
     "GcCountParNew": "ParNew GC count.",
     "GcTimeMillisParNew": "ParNew GC time in msec.",
     "GcCountConcurrentMarkSweep": "ConcurrentMarkSweep GC count.",

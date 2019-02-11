@@ -1,0 +1,6 @@
+{
+    "sink.appliedHFiles": "Number of applied hfiles",
+    "sink.appliedOps": "Number of applied operations",
+    "sink.ageOfLastAppliedOp": "Age of last applied operation",
+    "sink.appliedBatches": "Number of applied batches"
+}

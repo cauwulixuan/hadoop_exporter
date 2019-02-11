@@ -1,0 +1,12 @@
+{
+    "CacheCapacityRemaining": "Description of the metric",
+    "CacheCapacityRemainingPercentage": "Description of the metric",
+    "CacheCapacityTotal": "Description of the metric",
+    "CacheCapacityUsed": "Description of the metric",
+    "CacheReadRequests": "Description of the metric",
+    "CacheRequestedBytes": "Description of the metric",
+    "CacheHitBytes": "Description of the metric",
+    "CacheAllocatedArena": "Description of the metric",
+    "CacheNumLockedBuffers": "Description of the metric",
+    "CacheHitRatio": "Description of the metric"
+}

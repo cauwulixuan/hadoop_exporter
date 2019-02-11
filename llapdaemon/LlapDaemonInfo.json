@@ -1,0 +1,7 @@
+{
+    "NumExecutors": "Description of the metric",
+    "NumActive": "Description of the metric",
+    "ExecutorMemoryPerInstance": "Description of the metric",
+    "IoMemoryPerInstance": "Description of the metric",
+    "MaxJvmMemory": "Description of the metric"
+}

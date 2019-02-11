@@ -1,0 +1,6 @@
+{
+    "MaxAllocation": "Description of the metric",
+    "MinAllocation": "Description of the metric",
+    "ArenaSize": "Description of the metric",
+    "MaxCacheSize": "Description of the metric"
+}

@@ -1,0 +1,21 @@
+{
+    "name" : "Hadoop:service=ApplicationHistoryServer,name=EntityGroupFSTimelineStoreMetrics",
+    "modelerType" : "EntityGroupFSTimelineStoreMetrics",
+    "tag.Context" : "yarn",
+    "tag.Hostname" : "indata-10-110-13-165.indata.com",
+    "GetEntityToSummaryOps" : 18,
+    "GetEntityToDetailOps" : 0,
+    "SummaryLogReadNumOps" : 0,
+    "SummaryLogReadAvgTimeMs" : 0.0,
+    "EntitiesReadToSummary" : 0,
+    "NoRefreshCacheRead" : 0,
+    "CacheStaleRefreshes" : 0,
+    "CacheEvicts" : 0,
+    "CacheRefreshNumOps" : 0,
+    "CacheRefreshAvgTimeMs" : 0.0,
+    "ActiveLogDirScanNumOps" : 2021,
+    "ActiveLogDirScanAvgTimeMs" : 1.0,
+    "LogCleanNumOps" : 8,
+    "LogCleanAvgTimeMs" : 0.0,
+    "LogsDirsCleaned" : 0
+}

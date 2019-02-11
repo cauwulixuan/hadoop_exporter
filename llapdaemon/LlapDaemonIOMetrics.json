@@ -1,0 +1,11 @@
+{
+    "MaxDecodingTime": "Description of the metric",
+    "RateOfDecodingNumOps": "Description of the metric",
+    "RateOfDecodingAvgTime": "Description of the metric",
+    "PercentileDecodingTime_30sNumOps": "Description of the metric",
+    "PercentileDecodingTime_30s50thPercentileLatency": "Description of the metric",
+    "PercentileDecodingTime_30s75thPercentileLatency": "Description of the metric",
+    "PercentileDecodingTime_30s90thPercentileLatency": "Description of the metric",
+    "PercentileDecodingTime_30s95thPercentileLatency": "Description of the metric",
+    "PercentileDecodingTime_30s99thPercentileLatency": "Description of the metric",
+}
