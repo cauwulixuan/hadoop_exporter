@@ -54,3 +54,163 @@ optional arguments:
 
 Tested on Apache Hadoop 2.7.3
 # hadoop_exporter
+
+# Usage
+You can run each `Collector` under directory `cmd/`, just like:
+```
+cd hadoop_exporter/cmd
+python hdfs_namenode.py  -h
+# input the params the script asked.
+```
+Or if you want to run the entire project, you should have an webhook/api with url = `http://<rest_api_host_and_port>/alert/getservicesbyhost` to provide the jmx urls: the content in the webhook or api should be like:
+```
+{
+    "cluster_name1": [
+        {
+            "node1.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node1.fqdn.com:1022/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node1.fqdn.com:60030/jmx"
+                },
+                "HISTORYSERVER": {
+                    "jmx": "node1.fqdn.com:19888/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "node1.fqdn.com:8480/jmx"
+                },
+                "NAMENODE": {
+                    "jmx": "node1.fqdn.com:50070/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "node1.fqdn.com:8042/jmx"
+                }
+            }
+        },
+        {
+            "node2.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node2.fqdn.com:1022/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node2.fqdn.com:60030/jmx"
+                },
+                "HIVE_LLAP": {
+                    "jmx": "http://node2.fqdn.com:15002/jmx"
+                },
+                "HIVE_SERVER_INTERACTIVE": {
+                    "jmx": "http://node2.fqdn.com:10502/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "http://node2.fqdn.com:8480/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "http://node2.fqdn.com:8042/jmx"
+                }
+            }
+        },
+        {
+            "node3.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node3.fqdn.com:1022/jmx"
+                },
+                "HBASE_MASTER": {
+                    "jmx": "http://node3.fqdn.com:16010/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node3.fqdn.com:60030/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "http://node3.fqdn.com:8480/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "http://node3.fqdn.com:8042/jmx"
+                },
+                "RESOURCEMANAGER": {
+                    "jmx": "http://node3.fqdn.com:8088/jmx"
+                }
+            }
+        }
+    ],
+    "cluster_name2": [
+        {
+            "node4.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node4.fqdn.com:1022/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node4.fqdn.com:60030/jmx"
+                },
+                "HISTORYSERVER": {
+                    "jmx": "node4.fqdn.com:19888/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "node4.fqdn.com:8480/jmx"
+                },
+                "NAMENODE": {
+                    "jmx": "node4.fqdn.com:50070/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "node4.fqdn.com:8042/jmx"
+                }
+            }
+        },
+        {
+            "node5.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node5.fqdn.com:1022/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node5.fqdn.com:60030/jmx"
+                },
+                "HIVE_LLAP": {
+                    "jmx": "http://node5.fqdn.com:15002/jmx"
+                },
+                "HIVE_SERVER_INTERACTIVE": {
+                    "jmx": "http://node5.fqdn.com:10502/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "http://node5.fqdn.com:8480/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "http://node5.fqdn.com:8042/jmx"
+                }
+            }
+        },
+        {
+            "node6.fqdn.com": {
+                "DATANODE": {
+                    "jmx": "http://node6.fqdn.com:1022/jmx"
+                },
+                "HBASE_MASTER": {
+                    "jmx": "http://node6.fqdn.com:16010/jmx"
+                },
+                "HBASE_REGIONSERVER": {
+                    "jmx": "http://node6.fqdn.com:60030/jmx"
+                },
+                "JOURNALNODE": {
+                    "jmx": "http://node6.fqdn.com:8480/jmx"
+                },
+                "NODEMANAGER": {
+                    "jmx": "http://node6.fqdn.com:8042/jmx"
+                },
+                "RESOURCEMANAGER": {
+                    "jmx": "http://node6.fqdn.com:8088/jmx"
+                }
+            }
+        }
+    ]
+}
+```
+Then you can run:
+```
+# -s means the rest api or webhook url mentioned above, should be in <host:port> format, no schema and path( I know it's ugly).
+# -P (upper) means hadoop_exporter should export metrics in this port. you can get metrics from <http://hostname:9131/metrics>
+python hadoop_exporter.py -s "<rest_api_host_and_port>" -P 9131
+```
+
+**One more thing**:
+you should run all this steps in **all hadoop nodes**.
+
+MAYBE I'll improve this project for common use.
